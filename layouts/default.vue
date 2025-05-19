@@ -1,8 +1,21 @@
 <template>
   <div class="min-h-screen bg-gray-900 text-gray-200">
     <!-- Header Container -->
-    <div :style="{ marginLeft: isSidebarOpen ? '16rem' : '4rem' }" class="fixed top-0 right-0 left-0 z-40 transition-all duration-300">
-      <AppHeader @toggle-sidebar="toggleSidebar" :is-sidebar-open="isSidebarOpen" />
+    <div
+      :style="{ marginLeft: isSidebarOpen ? '16rem' : '4rem' }"
+      class="fixed top-0 right-0 left-0 z-40 transition-all duration-300"
+    >
+      <AppHeader
+        @toggle-sidebar="toggleSidebar"
+        :is-sidebar-open="isSidebarOpen"
+      />
+    </div>
+
+    <!-- Stats Header (fuera del header fijo) -->
+    <div
+      :style="{ marginLeft: isSidebarOpen ? '16rem' : '4rem' }"
+      class="fixed top-16 right-0 left-0 z-30"
+    >
       <GlobalStatsHeader />
     </div>
 
@@ -11,7 +24,7 @@
     <main
       class="transition-all duration-300"
       :style="{
-        paddingTop: 'calc(4rem + 110px)',
+        paddingTop: 'calc(4rem + 150px)',
         marginLeft: isSidebarOpen ? '16rem' : '4rem',
       }"
     >
