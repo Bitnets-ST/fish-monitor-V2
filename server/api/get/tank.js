@@ -1,8 +1,6 @@
 import Tank from '~/server/models/tank';
-import Branch from '~/server/models/branch';
-import Zone from '~/server/models/zone';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const allTanks = await Tank.find({}); // Fetch all tanks first for aggregate calculations
 
