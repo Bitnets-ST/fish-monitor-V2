@@ -41,8 +41,7 @@ export default defineEventHandler(async (event) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Configurar cookies
-    const config = useRuntimeConfig();
+  
     
     // Cookie para el token de acceso
     setCookie(event, 'accessToken', accessToken, {
