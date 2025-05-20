@@ -136,13 +136,13 @@ export const useAuthStore = defineStore('auth', {
     async refreshToken() {
       this.loading = true;
       try {
-        const { data, error } = await useFetch('/api/auth/refresh', {
-          method: 'POST',
-          headers: useRequestHeaders(['cookie'])
+        const { data, error } = await useFetch("/api/auth/refresh", {
+          method: "POST",
+          headers: useRequestHeaders(["cookie"]),
         });
         if (error.value) {
           this.logout(); // Si el refresh falla, desloguear
-          throw error.value.data || new Error('No se pudo refrescar el token');
+          throw error.value.data || new Error("No se pudo refrescar el token");
         }
         if (data.value && data.value.user) {
           this.user = data.value.user;
@@ -150,11 +150,11 @@ export const useAuthStore = defineStore('auth', {
           return true;
         }
         return false;
+      // eslint-disable-next-line no-unused-vars
       } catch (err) {
         this.logout();
         return false;
       }
-      this.loading = false;
     }
   },
   // Configuración para pinia-plugin-persistedstate (opcional, si quieres persistir en localStorage/sessionStorage)

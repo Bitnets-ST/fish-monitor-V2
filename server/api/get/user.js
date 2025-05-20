@@ -1,6 +1,6 @@
 import User from '~/server/models/user'; // Adjust if your User model is named differently or located elsewhere
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     // Fetching users, selecting name and _id. Adjust 'name' if your User model uses a different field for display name (e.g., username, fullName).
     const users = await User.find({}).select('name _id').sort({ name: 1 }); 

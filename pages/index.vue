@@ -26,6 +26,7 @@ export default defineComponent({
       if (!authStore.isAuthenticated && !authStore.loading) {
         try {
           await authStore.fetchCurrentUser();
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error) {
           // El error ya se maneja en el store, no es necesario hacer nada aquí
         }
