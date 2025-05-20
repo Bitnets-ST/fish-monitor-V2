@@ -1,8 +1,13 @@
 import Zone from '~/server/models/zone';
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (event) => {
   try {
-    const zones = await Zone.find({}).select('name _id').sort({ name: 1 });
+    const query = {};
+    const branchId = getQuery(event).branch_id;
+    if (branchId) {
+      query.branch_id = branchId;
+    }
+    const zones = await Zone.find(query).select('name _id branch_id').sort({ name: 1 });
     return {
       success: true,
       zones: zones
