@@ -2,8 +2,8 @@
   <header class="fixed top-0 left-0 right-0 bg-gray-800 z-30 h-16">
     <div class="flex items-center justify-between h-full px-4">
       <button
-        @click="$emit('toggle-sidebar')"
-        class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+      class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+      @click="$emit('toggle-sidebar')"
       >
         <Icon
           name="material-symbols:menu-rounded"
@@ -21,13 +21,14 @@
         </div>
         <button 
           v-if="authStore.isAuthenticated"
-          @click="handleLogout"
+          
           class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-md shadow-sm font-medium transition duration-150 ease-in-out"
+          @click="handleLogout"
         >
           Salir
         </button>
         <!-- Placeholder si no está autenticado o para balancear el espacio -->
-        <div v-else class="w-8"></div> 
+        <div v-else class="w-8"/> 
       </div>
     </div>
   </header>

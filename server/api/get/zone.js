@@ -1,6 +1,6 @@
 import Zone from '~/server/models/zone';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const zones = await Zone.find({}).select('name _id').sort({ name: 1 });
     return {

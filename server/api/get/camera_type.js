@@ -1,6 +1,6 @@
 import CameraType from '~/server/models/camera_type'; // Ensure model name matches
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   try {
     const cameraTypes = await CameraType.find({}).select('name _id').sort({ name: 1 });
     return {
