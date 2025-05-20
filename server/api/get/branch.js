@@ -1,6 +1,6 @@
 import Branch from '~/server/models/branch';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   // Optional: Add any access control or error handling if needed
   // For example, check user roles if this information should be restricted.
 
