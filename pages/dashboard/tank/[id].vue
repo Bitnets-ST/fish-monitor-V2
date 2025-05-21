@@ -22,6 +22,9 @@
           <div class="tank-info">
             <b>Material:</b> {{ tank.material || "N/A" }}
           </div>
+          <div class="tank-info">
+            <b>Biomasa:</b> {{ tank.población?.biomasa_kg || "N/A" }} kg
+          </div>
           <div class="tank-info"><b>Estado:</b> {{ tank.estado || "N/A" }}</div>
           <button class="pdf-btn" @click="downloadPDF(tank)">PDF</button>
         </div>
@@ -67,52 +70,87 @@ const goBack = () => {
 
 const downloadPDF = (tank) => {
   const doc = new jsPDF();
+  
+  // Añadir el logo al PDF (posición x, y, ancho, alto) usando la imagen real
   try {
-    doc.addImage("/bitnets.jpg", "JPEG", 10, 10, 30, 30);
+    // La imagen en la carpeta public es accesible directamente por su ruta relativa a la raíz
+    doc.addImage('/bitnets.jpg', 'JPEG', 10, 10, 30, 30);
   } catch (error) {
+    // Si hay error al añadir la imagen, usamos un texto como alternativa
     doc.setFontSize(16);
     doc.setTextColor(52, 152, 219);
     doc.text("BITNETS", 20, 20);
   }
+  
+  // Título y encabezado profesionales
   doc.setFontSize(18);
   doc.setTextColor(31, 97, 141);
-  doc.text("REPORTE DEL ESTANQUE", 105, 25, { align: "center" });
+  doc.text('REPORTE DEL ESTANQUE', 105, 25, { align: 'center' });
+  
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text(`${tank.nombre || "SIN NOMBRE"}`, 105, 35, { align: "center" });
+  doc.text(`${tank.nombre || 'SIN NOMBRE'}`, 105, 35, { align: 'center' });
+  
+  // Fecha
   const today = new Date();
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
-  doc.text(`Fecha: ${today.toLocaleDateString()}`, 105, 42, {
-    align: "center",
-  });
+  doc.text(`Fecha: ${today.toLocaleDateString()}`, 105, 42, { align: 'center' });
+  
+  // Línea divisoria
   doc.setDrawColor(31, 97, 141);
   doc.setLineWidth(0.5);
   doc.line(20, 45, 190, 45);
+  
+  // Información del estanque - versión mejorada con formato de tabla simple
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
+  
   const startY = 55;
-  const lineHeight = 10;
-  doc.setFont("helvetica", "bold");
-  doc.text("Nombre:", 30, startY);
-  doc.text("Capacidad:", 30, startY + lineHeight);
-  doc.text("Tipo:", 30, startY + lineHeight * 2);
-  doc.text("Material:", 30, startY + lineHeight * 3);
-  doc.text("Estado:", 30, startY + lineHeight * 4);
-  doc.setFont("helvetica", "normal");
-  doc.text(`${tank.nombre || "N/A"}`, 80, startY);
-  doc.text(`${tank.capacidad || "N/A"}`, 80, startY + lineHeight);
-  doc.text(`${tank.tipo || "N/A"}`, 80, startY + lineHeight * 2);
-  doc.text(`${tank.material || "N/A"}`, 80, startY + lineHeight * 3);
-  doc.text(`${tank.estado || "N/A"}`, 80, startY + lineHeight * 4);
+  const lineHeight = 8; // Reduced line height for more data
+  let currentY = startY;
+  
+  const addInfo = (label, value) => {
+    if (value !== null && value !== undefined && value !== '') {
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${label}:`, 30, currentY);
+      doc.setFont('helvetica', 'normal');
+      // Handle long text wrapping if necessary, though for this data it might not be crucial.
+      // A more robust solution would use autoTable or manual text splitting.
+      doc.text(`${value}`, 80, currentY, { maxWidth: 110 }); // Added maxWidth
+      currentY += lineHeight;
+    }
+  };
+  
+  addInfo('Estado', tank.estado || 'N/A');
+  addInfo('Capacidad', `${tank.capacidad || 'N/A'} litros`);
+  addInfo('Tipo', tank.tipo || 'N/A');
+  addInfo('Material', tank.material || 'N/A');
+  addInfo('Ubicación', tank.ubicación?.dirección || 'N/A');
+  addInfo('Fecha Creación', tank.fecha_creación ? new Date(tank.fecha_creación).toLocaleDateString() : 'N/A');
+  addInfo('Última Inspección', tank.última_inspección ? new Date(tank.última_inspección).toLocaleDateString() : 'N/A');
+  addInfo('Especies', tank.especies?.join(', ') || 'N/A');
+  addInfo('Población', tank.población ? `${tank.población.total_peces || 'N/A'} peces / ${tank.población.biomasa_kg || 'N/A'} kg` : 'N/A');
+  addInfo('Condiciones - Temp', tank.condiciones?.temperatura_c ? `${tank.condiciones.temperatura_c} °C` : 'N/A');
+  addInfo('Condiciones - pH', tank.condiciones?.pH || 'N/A');
+  addInfo('Condiciones - Nivel Agua', tank.condiciones?.nivel_agua_cm ? `${tank.condiciones.nivel_agua_cm} cm` : 'N/A');
+  addInfo('Sensores', tank.sensores?.join(', ') || 'N/A');
+  addInfo('Alimentación', tank.alimentación ? `${tank.alimentación.tipo || 'N/A'} (${tank.alimentación.frecuencia_diaria || 'N/A'} veces/día)` : 'N/A');
+  addInfo('Sucursal', tank.branch_id?.name || tank.branch_id || 'N/A');
+  addInfo('Zona', tank.zone_id.name || tank.zone_id || 'N/A');
+
+  // Rectángulo para enmarcar la tabla
   doc.setDrawColor(31, 97, 141);
-  doc.rect(25, startY - 7, 160, lineHeight * 5 + 10);
+  // Calculate rectangle height based on currentY
+  doc.rect(25, startY - 7, 160, currentY - startY + 10);
+
+  // Pie de página con el logo de Bitnets
   doc.setFontSize(10);
   doc.setTextColor(100, 100, 100);
-  doc.text("© Bitnets - Todos los derechos reservados", 105, 270, {
-    align: "center",
-  });
-  doc.save(`Reporte_Estanque_${tank.nombre || "sin_nombre"}.pdf`);
+  doc.text('© Bitnets - Todos los derechos reservados', 105, 270, { align: 'center' });
+  
+  // Guardar el PDF con un nombre profesional
+  doc.save(`Reporte_Estanque_${tank.nombre || 'sin_nombre'}.pdf`);
 };
 
 onMounted(() => {
@@ -166,15 +204,23 @@ onMounted(() => {
   gap: 0.7rem;
   font-size: 1.1rem;
   margin-bottom: 1rem;
+  max-width: none;
+  overflow-y: visible;
+  max-height: none;
 }
 .tank-title {
   font-size: 1.3rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
   color: #a5b4fc;
+  width: auto;
+  text-align: left;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 .tank-info {
   font-size: 1.05rem;
+  line-height: normal;
 }
 .pdf-btn {
   background: #f59e42;
@@ -214,7 +260,7 @@ onMounted(() => {
   width: 100%;
   max-width: 800px;
   z-index: 1;
-  padding-top: 8rem;
+  
   box-sizing: border-box;
 }
 </style>

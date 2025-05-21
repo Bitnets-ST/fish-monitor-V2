@@ -17,7 +17,8 @@ const cameraSchema = new mongoose.Schema(
       ref: "Zone",
     },
     camera_type: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "CameraType",
       trim: true,
       required: [true, "Camera type is required"],
     },
