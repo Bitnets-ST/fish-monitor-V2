@@ -2,7 +2,7 @@ import CameraType from '~/server/models/camera_type'; // Ensure model name match
 
 export default defineEventHandler(async () => {
   try {
-    const cameraTypes = await CameraType.find({}).select('name _id').sort({ name: 1 });
+    const cameraTypes = await CameraType.find({}).select('name _id').sort({ name: 1 }); // No hay más campos relevantes en el modelo base
     return {
       success: true,
       cameraTypes: cameraTypes // Pluralized for consistency

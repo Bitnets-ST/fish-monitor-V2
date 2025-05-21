@@ -7,7 +7,10 @@ export default defineEventHandler(async (event) => {
     if (branchId) {
       query.branch_id = branchId;
     }
-    const zones = await Zone.find(query).select('name _id branch_id').sort({ name: 1 });
+    const zones = await Zone.find(query)
+      .select('name zone_description zone_manager zone_direction branch_id createdAt updatedAt _id')
+      .populate({ path: 'branch_id', select: 'name _id' })
+      .sort({ name: 1 });
     return {
       success: true,
       zones: zones

@@ -35,7 +35,7 @@ export default defineEventHandler(async () => {
     // For now, assuming the main request might just be for summary or a full list for other views.
     // The previous query for a sorted list with populated fields:
     const listedTanks = await Tank.find({})
-      .select('_id nombre branch_id zone_id capacidad tipo material estado')
+      .select('_id nombre ubicación capacidad tipo material sensores estado fecha_creación última_inspección especies población condiciones createdAt updatedAt branch_id zone_id')
       .populate({ path: 'branch_id', select: 'name _id' })
       .populate({ path: 'zone_id', select: 'name _id' })
       .sort({ nombre: 1 });
@@ -43,7 +43,7 @@ export default defineEventHandler(async () => {
     return {
       success: true,
       summary: summary,
-      tanks: listedTanks // Continue returning the list of tanks as before
+      tanks: listedTanks // Ahora retorna todos los campos relevantes
     };
 
   } catch (error) {
