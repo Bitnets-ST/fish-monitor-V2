@@ -28,7 +28,7 @@
         marginLeft: isSidebarOpen ? '16rem' : '4rem',
       }"
     >
-      <div class="p-6">
+      <div>
         <slot />
       </div>
     </main>

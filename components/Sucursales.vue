@@ -6,48 +6,64 @@
       <div class="wave wave2"></div>
       <div class="wave wave3"></div>
     </div>
-    
+
     <div class="sucursales-page-container">
       <div class="page-header">
         <div class="title-bubble">
           <h2 class="page-title">Sucursales</h2>
         </div>
       </div>
-      
+
       <div class="flex flex-wrap gap-8 mb-6 justify-center">
-        <div
-          v-for="branch in branches"
-          :key="branch._id"
-          class="branch-card"
-        >
+        <div v-for="branch in branches" :key="branch._id" class="branch-card">
           <div class="card-content">
             <div class="branch-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
-                <path fill="none" d="M0 0h24v24H0z"/>
-                <path d="M21 19h2v2H1v-2h2V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v15h2V9h3a1 1 0 0 1 1 1v9zM5 5v14h8V5H5zm14 8h-2v7h2v-7z" fill="rgba(255,255,255,0.9)"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="36"
+                height="36"
+              >
+                <path fill="none" d="M0 0h24v24H0z" />
+                <path
+                  d="M21 19h2v2H1v-2h2V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v15h2V9h3a1 1 0 0 1 1 1v9zM5 5v14h8V5H5zm14 8h-2v7h2v-7z"
+                  fill="rgba(255,255,255,0.9)"
+                />
               </svg>
             </div>
             <span class="branch-name">{{ branch.name }}</span>
-            
+
             <div class="zone-list" v-if="branch.zonas && branch.zonas.length">
               <div class="zone-list-title">Zonas:</div>
               <div class="zone-tags">
-                <span v-for="zona in branch.zonas" :key="zona._id" class="zone-tag">
+                <span
+                  v-for="zona in branch.zonas"
+                  :key="zona._id"
+                  class="zone-tag"
+                >
                   {{ zona.name }}
                 </span>
               </div>
             </div>
             <div v-else class="zone-list-empty">No hay zonas registradas</div>
-            
+
             <button class="ver-btn" @click="goToZonas(branch._id)">
               <span>Ver</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-                <path fill="none" d="M0 0h24v24H0z"/>
-                <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" fill="currentColor"/>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+              >
+                <path fill="none" d="M0 0h24v24H0z" />
+                <path
+                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
+                  fill="currentColor"
+                />
               </svg>
             </button>
           </div>
-          
+
           <!-- Burbujas decorativas -->
           <div class="bubbles">
             <div class="bubble bubble-1"></div>
@@ -57,7 +73,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- Decoración: peces -->
       <div class="fish fish-1"></div>
       <div class="fish fish-2"></div>
@@ -67,24 +83,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 const branches = ref([]);
 const router = useRouter();
 
 const fetchBranches = async () => {
   try {
-    const response = await $fetch('/api/get/branch');
+    const response = await $fetch("/api/get/branch");
     if (response.success && response.branches) {
       // Para cada sucursal, obtener sus zonas
-      const branchesWithZones = await Promise.all(response.branches.map(async (branch) => {
-        const zonesRes = await $fetch(`/api/get/zone?branch_id=${branch._id}`);
-        return {
-          ...branch,
-          zonas: zonesRes.success && zonesRes.zones ? zonesRes.zones : []
-        };
-      }));
+      const branchesWithZones = await Promise.all(
+        response.branches.map(async (branch) => {
+          const zonesRes = await $fetch(
+            `/api/get/zone?branch_id=${branch._id}`
+          );
+          return {
+            ...branch,
+            zonas: zonesRes.success && zonesRes.zones ? zonesRes.zones : [],
+          };
+        })
+      );
       branches.value = branchesWithZones;
     }
   } catch (error) {
@@ -93,7 +113,7 @@ const fetchBranches = async () => {
 };
 
 const goToZonas = (branchId) => {
-  router.push({ path: '/dashboard/sucursal', query: { id: branchId } });
+  router.push({ path: `/dashboard/branch/${branchId}` });
 };
 
 onMounted(() => {
@@ -106,7 +126,7 @@ onMounted(() => {
 .ocean-background {
   min-height: 100vh;
   height: auto; /* Permitir que la altura se ajuste al contenido si supera 100vh */
-  background: linear-gradient(180deg, #05445E 0%, #022c45 70%, #021926 100%);
+  background: linear-gradient(180deg, #05445e 0%, #022c45 70%, #021926 100%);
   /* Usar posicionamiento absoluto para cubrir el padre */
   position: absolute;
   top: 0;
@@ -156,13 +176,21 @@ onMounted(() => {
 }
 
 @keyframes wave {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 @keyframes wave2 {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 /* Contenedor principal - Ajustar para que se parezca al de la página de zonas */
@@ -203,7 +231,7 @@ onMounted(() => {
 .page-title {
   font-size: 2rem;
   font-weight: 800;
-  color: #EFFFFD;
+  color: #effffd;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   letter-spacing: 1px;
   margin: 0;
@@ -218,7 +246,11 @@ onMounted(() => {
 }
 
 .branch-card {
-  background: linear-gradient(135deg, rgba(189, 224, 254, 0.3) 0%, rgba(117, 230, 218, 0.2) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(189, 224, 254, 0.3) 0%,
+    rgba(117, 230, 218, 0.2) 100%
+  );
   backdrop-filter: blur(10px);
   border-radius: 2rem;
   padding: 0.5rem;
@@ -264,7 +296,7 @@ onMounted(() => {
 .branch-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #EFFFFD;
+  color: #effffd;
   margin-bottom: 1rem;
   text-align: center;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -280,7 +312,7 @@ onMounted(() => {
 .zone-list-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #75E6DA;
+  color: #75e6da;
   margin-bottom: 0.7rem;
 }
 
@@ -296,12 +328,12 @@ onMounted(() => {
   border-radius: 1rem;
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
-  color: #EFFFFD;
+  color: #effffd;
   border: 1px solid rgba(189, 224, 254, 0.3);
 }
 
 .zone-list-empty {
-  color: #BDE0FE;
+  color: #bde0fe;
   font-size: 0.95rem;
   opacity: 0.8;
   margin-top: 1rem;
@@ -310,8 +342,8 @@ onMounted(() => {
 
 /* Botón Ver */
 .ver-btn {
-  background: #189AB4;
-  color: #EFFFFD;
+  background: #189ab4;
+  color: #effffd;
   border: none;
   border-radius: 1.5rem;
   padding: 0.7rem 1.5rem;
@@ -327,7 +359,7 @@ onMounted(() => {
 }
 
 .ver-btn:hover {
-  background: #05445E;
+  background: #05445e;
   transform: translateY(-3px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
@@ -432,17 +464,33 @@ onMounted(() => {
 }
 
 @keyframes fish-swim {
-  0% { transform: translateX(-100px); }
-  50% { transform: translateX(calc(100vw + 100px)); }
-  50.1% { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
-  100% { transform: translateX(-100px) scaleX(-1); }
+  0% {
+    transform: translateX(-100px);
+  }
+  50% {
+    transform: translateX(calc(100vw + 100px));
+  }
+  50.1% {
+    transform: translateX(calc(100vw + 100px)) scaleX(-1);
+  }
+  100% {
+    transform: translateX(-100px) scaleX(-1);
+  }
 }
 
 @keyframes fish-swim-reverse {
-  0% { transform: translateX(calc(100vw + 100px)) scaleX(-1); }
-  50% { transform: translateX(-100px) scaleX(-1); }
-  50.1% { transform: translateX(-100px) scaleX(1); }
-  100% { transform: translateX(calc(100vw + 100px)) scaleX(1); }
+  0% {
+    transform: translateX(calc(100vw + 100px)) scaleX(-1);
+  }
+  50% {
+    transform: translateX(-100px) scaleX(-1);
+  }
+  50.1% {
+    transform: translateX(-100px) scaleX(1);
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px)) scaleX(1);
+  }
 }
 
 /* Responsive */
@@ -450,7 +498,7 @@ onMounted(() => {
   .page-title {
     font-size: 1.8rem;
   }
-  
+
   .branch-card {
     min-width: 260px;
     height: 300px;
@@ -461,12 +509,12 @@ onMounted(() => {
   .page-title {
     font-size: 1.5rem;
   }
-  
+
   .branch-card {
     min-width: 100%;
     height: 280px;
   }
-  
+
   .title-bubble {
     padding: 0.7rem 1.5rem;
   }
