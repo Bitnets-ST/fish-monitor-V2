@@ -7,12 +7,16 @@
         v-for="branch in branches"
         :key="branch._id"
         class="branch-card group"
-        @click="goToZonas(branch._id)"
       >
-        <div class="avatar">
-          {{ branch.name.charAt(0).toUpperCase() }}
-        </div>
         <span class="branch-name">{{ branch.name }}</span>
+        <div class="zone-list" v-if="branch.zonas && branch.zonas.length">
+          <div class="zone-list-title">Zonas:</div>
+          <ul>
+            <li v-for="zona in branch.zonas" :key="zona._id">{{ zona.name }}</li>
+          </ul>
+        </div>
+        <div v-else class="zone-list-empty">No hay zonas</div>
+        <button class="ver-btn" @click="goToZonas(branch._id)">Ver</button>
       </div>
     </div>
   </div>
@@ -29,9 +33,16 @@ const fetchBranches = async () => {
   try {
     const response = await $fetch('/api/get/branch');
     if (response.success && response.branches) {
-      branches.value = response.branches;
+      // Para cada sucursal, obtener sus zonas
+      const branchesWithZones = await Promise.all(response.branches.map(async (branch) => {
+        const zonesRes = await $fetch(`/api/get/zone?branch_id=${branch._id}`);
+        return {
+          ...branch,
+          zonas: zonesRes.success && zonesRes.zones ? zonesRes.zones : []
+        };
+      }));
+      branches.value = branchesWithZones;
     }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     // Manejo de error opcional
   }
@@ -53,15 +64,13 @@ onMounted(() => {
   padding: 2rem 1rem;
 }
 .branch-card {
-  background: #232946;
+  background: #6366f1;
   color: #fff;
   border-radius: 2rem;
   padding: 2rem 2.5rem 1.5rem 2.5rem;
-  cursor: pointer;
   font-weight: 700;
   font-size: 1.3rem;
   box-shadow: 0 4px 24px rgba(99,102,241,0.10), 0 1.5px 6px rgba(0,0,0,0.08);
-  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
   outline: none;
   text-align: center;
   min-width: 220px;
@@ -72,31 +81,52 @@ onMounted(() => {
   justify-content: center;
   gap: 0.7rem;
   border: 2px solid transparent;
+  cursor: default;
+  transition: none;
 }
 .branch-card:hover, .branch-card:focus, .branch-card:active {
   background: #6366f1;
   color: #fff;
-  transform: translateY(-4px) scale(1.04);
-  box-shadow: 0 8px 32px rgba(99,102,241,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  transform: none;
+  box-shadow: 0 4px 24px rgba(99,102,241,0.10), 0 1.5px 6px rgba(0,0,0,0.08);
   border-color: #6366f1;
-}
-.avatar {
-  width: 48px;
-  height: 48px;
-  background: #fff;
-  color: #6366f1;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.7rem;
-  font-weight: 800;
-  margin-bottom: 0.3rem;
-  box-shadow: 0 2px 8px rgba(99,102,241,0.10);
 }
 .branch-name {
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.5px;
+}
+.ver-btn {
+  background: #232946;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 1rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s, border 0.18s;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.10);
+}
+.ver-btn:hover {
+  background: #232946cc;
+  border: 2px solid #a5b4fc;
+  transform: translateY(-2px) scale(1.03);
+}
+.zone-list {
+  margin-top: 0.7rem;
+  text-align: left;
+}
+.zone-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.zone-list-empty {
+  margin-top: 0.7rem;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 </style> 

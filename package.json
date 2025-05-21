@@ -21,6 +21,8 @@
     "cookie-parser": "^1.4.7",
     "eslint": "^9.27.0",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "mongodb": "^6.16.0",
     "mongoose": "^8.15.0",
     "nuxt": "^3.17.3",
