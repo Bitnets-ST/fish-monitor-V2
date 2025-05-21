@@ -1,5 +1,8 @@
 <template>
   <q-page class="flex flex-center">
+    <!-- Agregar la imagen GIF de fondo -->
+    <img src="/source.gif" class="background-gif" alt="Peces nadando de fondo">
+
     <div class="w-full flex flex-col items-center">
       <button class="back-btn" @click="goBack">
         <span class="material-icons"> Volver a Zonas
@@ -56,30 +59,10 @@ const downloadPDF = (tank) => {
   // Crear el documento PDF
   const doc = new jsPDF();
   
-  // Convertir el logo (que es una imagen SVG) a una cadena base64
-  // Esta es una representación aproximada del logo de Bitnets basada en la imagen que compartiste
-  const logoSVG = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 100 100">
-    <!-- Barras azules -->
-    <rect x="30" y="10" width="10" height="70" fill="#3498db" />
-    <rect x="45" y="20" width="10" height="60" fill="#3498db" />
-    <rect x="60" y="10" width="10" height="70" fill="#3498db" />
-    
-    <!-- Curva gris -->
-    <path d="M 20,50 C 30,30 70,30 80,50" stroke="#95a5a6" stroke-width="8" fill="none" />
-    
-    <!-- Barras grises (reflejos) -->
-    <rect x="30" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
-    <rect x="45" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
-    <rect x="60" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
-  </svg>`;
-  
-  // Convertir SVG a base64 para usarlo en el PDF
-  const svgBase64 = 'data:image/svg+xml;base64,' + btoa(logoSVG);
-  
-  // Añadir el logo al PDF (posición x, y, ancho, alto)
+  // Añadir el logo al PDF (posición x, y, ancho, alto) usando la imagen real
   try {
-    doc.addImage(svgBase64, 'SVG', 10, 10, 30, 30);
+    // La imagen en la carpeta public es accesible directamente por su ruta relativa a la raíz
+    doc.addImage('/bitnets.jpg', 'JPEG', 10, 10, 30, 30);
   } catch (error) {
     // Si hay error al añadir la imagen, usamos un texto como alternativa
     doc.setFontSize(16);
@@ -212,5 +195,35 @@ onMounted(() => {
 .pdf-btn:hover {
   background: #d97706;
   transform: translateY(-2px) scale(1.03);
+}
+
+/* Estilos para la imagen GIF de fondo */
+.background-gif {
+  position: absolute;
+  /* Ajustar posición y tamaño para encajar visualmente en el círculo del diseño */
+  top: 50%; /* Empezar en el centro vertical */
+  left: 50%; /* Empezar en el centro horizontal */
+  transform: translate(-50%, -50%); /* Centrar la imagen en ese punto */
+  width: 50%; /* Ajusta este valor para cambiar el tamaño del GIF y que encaje en el círculo */
+  height: 50%; /* Ajusta este valor */
+  object-fit: contain; /* Usar contain para mostrar el GIF completo */
+  z-index: 0; /* Coloca la imagen detrás del contenido principal */
+  /* Eliminar object-position ya que contain con centrado debería ser suficiente */
+  object-position: center;
+}
+
+/* Asegurar que el contenido principal esté por encima de la imagen y posicionado correctamente */
+.w-full.flex.flex-col.items-center {
+  /* Posicionamiento absoluto para alinear con el fondo circular */
+  position: absolute;
+  top: 50%; /* Alinear con el centro vertical del fondo */
+  left: 50%; /* Alinear con el centro horizontal del fondo */
+  transform: translate(-50%, -50%); /* Centrar el contenido en ese punto */
+  width: 100%; /* Permitir que ocupe el ancho necesario dentro de su contexto */
+  max-width: 800px; /* Limitar el ancho máximo del contenido si es necesario para el diseño */
+  z-index: 1; /* Asegurar que esté por encima de la imagen */
+  /* Añadir padding superior para bajar el contenido dentro de este contenedor centrado */
+  padding-top: 8rem; /* Ajusta este valor para mover el contenido hacia abajo dentro de este contenedor */
+  box-sizing: border-box; /* Incluir padding en el ancho */
 }
 </style>
