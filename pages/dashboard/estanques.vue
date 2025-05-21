@@ -12,6 +12,7 @@
           <div class="tank-info"><b>Tipo:</b> {{ tank.tipo || 'N/A' }}</div>
           <div class="tank-info"><b>Material:</b> {{ tank.material || 'N/A' }}</div>
           <div class="tank-info"><b>Estado:</b> {{ tank.estado || 'N/A' }}</div>
+          <button class="pdf-btn" @click="downloadPDF(tank)">PDF</button>
         </div>
       </div>
       <div v-if="tanks.length === 0" class="text-gray-500">No hay estanques registrados en esta zona.</div>
@@ -22,6 +23,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import jsPDF from 'jspdf';
 
 const router = useRouter();
 const route = useRoute();
@@ -32,10 +34,14 @@ const fetchTanks = async () => {
     const zoneId = route.query.id;
     const response = await $fetch(`/api/get/tank`);
     if (response.success && response.tanks) {
-      // Filtrar los estanques por zone_id
-      tanks.value = response.tanks.filter(t => t.zone_id && t.zone_id._id === zoneId);
+      // Filtrar los estanques por zone_id (soporte para string u objeto)
+      tanks.value = response.tanks.filter(t => {
+        if (!t.zone_id) return false;
+        if (typeof t.zone_id === 'string') return t.zone_id === zoneId;
+        if (typeof t.zone_id === 'object') return t.zone_id._id === zoneId;
+        return false;
+      });
     }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     // Manejo de error opcional
   }
@@ -44,6 +50,17 @@ const fetchTanks = async () => {
 const goBack = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   window.history.length > 1 ? router.back() : router.push('/dashboard/sucursal');
+};
+
+const downloadPDF = (tank) => {
+  const doc = new jsPDF();
+  doc.text(`Detalles del Estanque`, 10, 10);
+  doc.text(`Nombre: ${tank.nombre || ''}`, 10, 20);
+  doc.text(`Capacidad: ${tank.capacidad || 'N/A'}`, 10, 30);
+  doc.text(`Tipo: ${tank.tipo || 'N/A'}`, 10, 40);
+  doc.text(`Material: ${tank.material || 'N/A'}`, 10, 50);
+  doc.text(`Estado: ${tank.estado || 'N/A'}`, 10, 60);
+  doc.save(`Estanque_${tank.nombre || 'detalle'}.pdf`);
 };
 
 onMounted(() => {
@@ -98,5 +115,21 @@ onMounted(() => {
 }
 .tank-info {
   font-size: 1.05rem;
+}
+.pdf-btn {
+  background: #f59e42;
+  color: #fff;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.18s, transform 0.18s;
+}
+.pdf-btn:hover {
+  background: #d97706;
+  transform: translateY(-2px) scale(1.03);
 }
 </style> 
