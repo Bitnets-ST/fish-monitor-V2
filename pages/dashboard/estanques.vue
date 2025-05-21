@@ -53,14 +53,95 @@ const goBack = () => {
 };
 
 const downloadPDF = (tank) => {
+  // Crear el documento PDF
   const doc = new jsPDF();
-  doc.text(`Detalles del Estanque`, 10, 10);
-  doc.text(`Nombre: ${tank.nombre || ''}`, 10, 20);
-  doc.text(`Capacidad: ${tank.capacidad || 'N/A'}`, 10, 30);
-  doc.text(`Tipo: ${tank.tipo || 'N/A'}`, 10, 40);
-  doc.text(`Material: ${tank.material || 'N/A'}`, 10, 50);
-  doc.text(`Estado: ${tank.estado || 'N/A'}`, 10, 60);
-  doc.save(`Estanque_${tank.nombre || 'detalle'}.pdf`);
+  
+  // Convertir el logo (que es una imagen SVG) a una cadena base64
+  // Esta es una representación aproximada del logo de Bitnets basada en la imagen que compartiste
+  const logoSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 100 100">
+    <!-- Barras azules -->
+    <rect x="30" y="10" width="10" height="70" fill="#3498db" />
+    <rect x="45" y="20" width="10" height="60" fill="#3498db" />
+    <rect x="60" y="10" width="10" height="70" fill="#3498db" />
+    
+    <!-- Curva gris -->
+    <path d="M 20,50 C 30,30 70,30 80,50" stroke="#95a5a6" stroke-width="8" fill="none" />
+    
+    <!-- Barras grises (reflejos) -->
+    <rect x="30" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
+    <rect x="45" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
+    <rect x="60" y="50" width="10" height="40" fill="#95a5a6" opacity="0.7" />
+  </svg>`;
+  
+  // Convertir SVG a base64 para usarlo en el PDF
+  const svgBase64 = 'data:image/svg+xml;base64,' + btoa(logoSVG);
+  
+  // Añadir el logo al PDF (posición x, y, ancho, alto)
+  try {
+    doc.addImage(svgBase64, 'SVG', 10, 10, 30, 30);
+  } catch (error) {
+    // Si hay error al añadir la imagen, usamos un texto como alternativa
+    doc.setFontSize(16);
+    doc.setTextColor(52, 152, 219);
+    doc.text("BITNETS", 20, 20);
+  }
+  
+  // Título y encabezado profesionales
+  doc.setFontSize(18);
+  doc.setTextColor(31, 97, 141);
+  doc.text('REPORTE DEL ESTANQUE', 105, 25, { align: 'center' });
+  
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`${tank.nombre || 'SIN NOMBRE'}`, 105, 35, { align: 'center' });
+  
+  // Fecha
+  const today = new Date();
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  doc.text(`Fecha: ${today.toLocaleDateString()}`, 105, 42, { align: 'center' });
+  
+  // Línea divisoria
+  doc.setDrawColor(31, 97, 141);
+  doc.setLineWidth(0.5);
+  doc.line(20, 45, 190, 45);
+  
+  // Información del estanque - versión mejorada con formato de tabla simple
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  
+  const startY = 55;
+  const lineHeight = 10;
+  
+  // Agregamos una versión simplificada de tabla
+  // Columna de propiedades
+  doc.setFont('helvetica', 'bold');
+  doc.text('Nombre:', 30, startY);
+  doc.text('Capacidad:', 30, startY + lineHeight);
+  doc.text('Tipo:', 30, startY + lineHeight * 2);
+  doc.text('Material:', 30, startY + lineHeight * 3);
+  doc.text('Estado:', 30, startY + lineHeight * 4);
+  
+  // Columna de valores
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${tank.nombre || 'N/A'}`, 80, startY);
+  doc.text(`${tank.capacidad || 'N/A'}`, 80, startY + lineHeight);
+  doc.text(`${tank.tipo || 'N/A'}`, 80, startY + lineHeight * 2);
+  doc.text(`${tank.material || 'N/A'}`, 80, startY + lineHeight * 3);
+  doc.text(`${tank.estado || 'N/A'}`, 80, startY + lineHeight * 4);
+  
+  // Rectángulo para enmarcar la tabla
+  doc.setDrawColor(31, 97, 141);
+  doc.rect(25, startY - 7, 160, lineHeight * 5 + 10);
+  
+  // Pie de página con el logo de Bitnets
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  doc.text('© Bitnets - Todos los derechos reservados', 105, 270, { align: 'center' });
+  
+  // Guardar el PDF con un nombre profesional
+  doc.save(`Reporte_Estanque_${tank.nombre || 'sin_nombre'}.pdf`);
 };
 
 onMounted(() => {
@@ -132,4 +213,4 @@ onMounted(() => {
   background: #d97706;
   transform: translateY(-2px) scale(1.03);
 }
-</style> 
+</style>
