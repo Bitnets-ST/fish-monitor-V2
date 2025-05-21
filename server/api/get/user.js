@@ -3,7 +3,9 @@ import User from '~/server/models/user'; // Adjust if your User model is named d
 export default defineEventHandler(async () => {
   try {
     // Fetching users, selecting name and _id. Adjust 'name' if your User model uses a different field for display name (e.g., username, fullName).
-    const users = await User.find({}).select('name _id').sort({ name: 1 }); 
+    const users = await User.find({})
+      .select('name email user_description avatar isActive lastLogin role createdAt updatedAt _id')
+      .sort({ name: 1 }); 
     return {
       success: true,
       users: users
