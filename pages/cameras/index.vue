@@ -1,15 +1,13 @@
 <template>
-  <div>
-    Camaras
-  </div>
+  <div class="p-6">Camaras</div>
 </template>
 
-<script >
+<script setup>
+import { definePageMeta } from "#imports";
+
 definePageMeta({
   middleware: ["auth"],
 });
 </script>
 
-<style>
-
-</style>
+<style></style>
