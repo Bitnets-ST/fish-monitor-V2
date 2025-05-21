@@ -7,7 +7,7 @@
       <div class="wave wave3"></div>
     </div>
     
-    <div class="sucursales-container">
+    <div class="sucursales-page-container">
       <div class="page-header">
         <div class="title-bubble">
           <h2 class="page-title">Sucursales</h2>
@@ -102,11 +102,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Fondo marino */
+/* Fondo marino - Asegurarnos que tenga min-height 100vh */
 .ocean-background {
   min-height: 100vh;
+  height: auto; /* Permitir que la altura se ajuste al contenido si supera 100vh */
   background: linear-gradient(180deg, #05445E 0%, #022c45 70%, #021926 100%);
-  position: relative;
+  /* Usar posicionamiento absoluto para cubrir el padre */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   padding: 2rem 1rem;
 }
@@ -159,21 +165,29 @@ onMounted(() => {
   100% { transform: translateX(0); }
 }
 
-/* Contenedor principal */
-.sucursales-container {
+/* Contenedor principal - Ajustar para que se parezca al de la página de zonas */
+.sucursales-page-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  /* Ajustar el padding vertical para dar espacio y empujar el contenido */
+  padding: 2rem 0; /* padding vertical de 2rem, horizontal 0 (ya que el padre tiene) */
+  /* Posicionamiento relativo y z-index para estar encima del fondo absoluto */
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  display: block;
+  /* Añadir padding-top para dar espacio sobre el contenido - Aumentado */
+  padding-top: 10rem; /* Ajusta este valor si necesitas más o menos espacio desde arriba */
 }
 
 /* Encabezado */
 .page-header {
   text-align: center;
-  margin-bottom: 3rem;
+  /* Eliminar margen inferior si el padding del contenedor ya maneja el espacio */
+  margin-bottom: 0;
   display: flex;
   justify-content: center;
+  position: relative; /* Necesario para que el z-index funcione correctamente en algunos casos */
+  z-index: 3; /* Asegurar que el encabezado esté encima de todo si hay solapamiento */
 }
 
 .title-bubble {
@@ -196,6 +210,13 @@ onMounted(() => {
 }
 
 /* Tarjetas de sucursales */
+/* Seleccionar el div que contiene las tarjetas */
+.sucursales-page-container > .flex.flex-wrap.gap-8.mb-6.justify-center {
+  /* Ajustar el margen superior para separar del encabezado */
+  margin-top: 2rem; /* Espacio entre el encabezado y las tarjetas */
+  margin-bottom: 1.5rem; /* Mantener o ajustar si es necesario */
+}
+
 .branch-card {
   background: linear-gradient(135deg, rgba(189, 224, 254, 0.3) 0%, rgba(117, 230, 218, 0.2) 100%);
   backdrop-filter: blur(10px);
