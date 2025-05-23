@@ -1,6 +1,16 @@
 [build]
   command = "npm run build"
   publish = ".output/public"
+  functions = ".output/server/functions" # Ruta corregida para funciones
 
 [functions]
-  directory = ".output/server" 
+  directory = ".output/server/functions" # Asegurar esta ruta
+  node_bundler = "esbuild" # Añadir esto para Nuxt 3
+
+[dev]
+  framework = "#custom"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
