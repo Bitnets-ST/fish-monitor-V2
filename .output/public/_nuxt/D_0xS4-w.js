@@ -1,0 +1,1 @@
+import{Q as i,u as n,R as s,n as e}from"./B932YNoQ.js";const f=i(async(u,d)=>{var o;let r,a;const t=n();if(!t.isAuthenticated)try{[r,a]=s(()=>t.fetchCurrentUser()),await r,a()}catch{return e("/auth/login")}if(!t.isAuthenticated)return e("/auth/login");if(((o=t.user)==null?void 0:o.role)!=="administrador")return e("/dashboard")});export{f as default};
