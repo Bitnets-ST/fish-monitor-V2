@@ -71,88 +71,168 @@ const goBack = () => {
 const downloadPDF = (tank) => {
   const doc = new jsPDF();
   
-  // Añadir el logo al PDF (posición x, y, ancho, alto) usando la imagen real
+  // Configuración de colores
+  const primaryColor = [31, 97, 141];
+  const secondaryColor = [99, 102, 241];
+  const accentColor = [245, 158, 66];
+  const lightGray = [248, 249, 250];
+  const darkGray = [55, 65, 81];
+  
+  // HEADER CON DISEÑO MODERNO
+  // Fondo del header
+  doc.setFillColor(...primaryColor);
+  doc.rect(0, 0, 210, 50, 'F');
+  
+  // Logo (intenta cargar la imagen, si no usa texto)
   try {
-    // La imagen en la carpeta public es accesible directamente por su ruta relativa a la raíz
-    doc.addImage('/bitnets.jpg', 'JPEG', 10, 10, 30, 30);
+    doc.addImage('/bitnets.jpg', 'JPEG', 15, 10, 25, 25);
   } catch (error) {
-    // Si hay error al añadir la imagen, usamos un texto como alternativa
-    doc.setFontSize(16);
-    doc.setTextColor(52, 152, 219);
-    doc.text("BITNETS", 20, 20);
+    doc.setFontSize(20);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.text("BITNETS", 20, 25);
   }
   
-  // Título y encabezado profesionales
-  doc.setFontSize(18);
-  doc.setTextColor(31, 97, 141);
-  doc.text('REPORTE DEL ESTANQUE', 105, 25, { align: 'center' });
+  // Título principal
+  doc.setFontSize(24);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('REPORTE DE ESTANQUE', 105, 22, { align: 'center' });
   
-  doc.setFontSize(14);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`${tank.nombre || 'SIN NOMBRE'}`, 105, 35, { align: 'center' });
+  // Nombre del estanque
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${tank.nombre || 'SIN NOMBRE'}`, 105, 32, { align: 'center' });
   
-  // Fecha
+  // Fecha en el header
   const today = new Date();
   doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text(`Fecha: ${today.toLocaleDateString()}`, 105, 42, { align: 'center' });
+  doc.text(`Generado: ${today.toLocaleDateString()} ${today.toLocaleTimeString()}`, 105, 42, { align: 'center' });
   
-  // Línea divisoria
-  doc.setDrawColor(31, 97, 141);
-  doc.setLineWidth(0.5);
-  doc.line(20, 45, 190, 45);
+  // SECCIÓN DE INFORMACIÓN GENERAL
+  let currentY = 70;
   
-  // Información del estanque - versión mejorada con formato de tabla simple
-  doc.setFontSize(12);
-  doc.setTextColor(0, 0, 0);
-  
-  const startY = 55;
-  const lineHeight = 8; // Reduced line height for more data
-  let currentY = startY;
-  
-  const addInfo = (label, value) => {
-    if (value !== null && value !== undefined && value !== '') {
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${label}:`, 30, currentY);
-      doc.setFont('helvetica', 'normal');
-      // Handle long text wrapping if necessary, though for this data it might not be crucial.
-      // A more robust solution would use autoTable or manual text splitting.
-      doc.text(`${value}`, 80, currentY, { maxWidth: 110 }); // Added maxWidth
-      currentY += lineHeight;
-    }
+  // Función para crear secciones con estilo
+  const createSection = (title, startY) => {
+    // Línea decorativa
+    doc.setDrawColor(...secondaryColor);
+    doc.setLineWidth(3);
+    doc.line(20, startY, 35, startY);
+    
+    // Título de sección
+    doc.setFontSize(14);
+    doc.setTextColor(...primaryColor);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, 40, startY + 2);
+    
+    return startY + 12;
   };
   
-  addInfo('Estado', tank.estado || 'N/A');
-  addInfo('Capacidad', `${tank.capacidad || 'N/A'} litros`);
-  addInfo('Tipo', tank.tipo || 'N/A');
-  addInfo('Material', tank.material || 'N/A');
-  addInfo('Ubicación', tank.ubicación?.dirección || 'N/A');
-  addInfo('Fecha Creación', tank.fecha_creación ? new Date(tank.fecha_creación).toLocaleDateString() : 'N/A');
-  addInfo('Última Inspección', tank.última_inspección ? new Date(tank.última_inspección).toLocaleDateString() : 'N/A');
-  addInfo('Especies', tank.especies?.join(', ') || 'N/A');
-  addInfo('Población', tank.población ? `${tank.población.total_peces || 'N/A'} peces / ${tank.población.biomasa_kg || 'N/A'} kg` : 'N/A');
-  addInfo('Condiciones - Temp', tank.condiciones?.temperatura_c ? `${tank.condiciones.temperatura_c} °C` : 'N/A');
-  addInfo('Condiciones - pH', tank.condiciones?.pH || 'N/A');
-  addInfo('Condiciones - Nivel Agua', tank.condiciones?.nivel_agua_cm ? `${tank.condiciones.nivel_agua_cm} cm` : 'N/A');
-  addInfo('Sensores', tank.sensores?.join(', ') || 'N/A');
-  addInfo('Alimentación', tank.alimentación ? `${tank.alimentación.tipo || 'N/A'} (${tank.alimentación.frecuencia_diaria || 'N/A'} veces/día)` : 'N/A');
-  addInfo('Sucursal', tank.branch_id?.name || tank.branch_id || 'N/A');
-  addInfo('Zona', tank.zone_id.name || tank.zone_id || 'N/A');
-
-  // Rectángulo para enmarcar la tabla
-  doc.setDrawColor(31, 97, 141);
-  // Calculate rectangle height based on currentY
-  doc.rect(25, startY - 7, 160, currentY - startY + 10);
-
-  // Pie de página con el logo de Bitnets
-  doc.setFontSize(10);
-  doc.setTextColor(100, 100, 100);
-  doc.text('© Bitnets - Todos los derechos reservados', 105, 270, { align: 'center' });
+  // Función mejorada para agregar información
+  const addStyledInfo = (label, value, yPos) => {
+    if (value !== null && value !== undefined && value !== '' && value !== 'N/A') {
+      // Fondo alternado para mejor legibilidad
+      if (Math.floor((yPos - 82) / 8) % 2 === 0) {
+        doc.setFillColor(...lightGray);
+        doc.rect(25, yPos - 3, 160, 7, 'F');
+      }
+      
+      // Label
+      doc.setFontSize(11);
+      doc.setTextColor(...darkGray);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${label}:`, 30, yPos);
+      
+      // Value
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
+      doc.text(`${value}`, 85, yPos, { maxWidth: 100 });
+      
+      return yPos + 8;
+    }
+    return yPos;
+  };
   
-  // Guardar el PDF con un nombre profesional
-  doc.save(`Reporte_Estanque_${tank.nombre || 'sin_nombre'}.pdf`);
+  // INFORMACIÓN BÁSICA
+  currentY = createSection('INFORMACIÓN BÁSICA', currentY);
+  currentY = addStyledInfo('Estado', tank.estado || 'N/A', currentY);
+  currentY = addStyledInfo('Ubicación', tank.ubicación?.dirección || 'N/A', currentY);
+  currentY = addStyledInfo('Capacidad', tank.capacidad ? `${tank.capacidad} litros` : 'N/A', currentY);
+  currentY = addStyledInfo('Tipo', tank.tipo || 'N/A', currentY);
+  currentY = addStyledInfo('Material', tank.material || 'N/A', currentY);
+  
+  // FECHAS IMPORTANTES
+  currentY += 8;
+  currentY = createSection('FECHAS IMPORTANTES', currentY);
+  currentY = addStyledInfo('Fecha de Creación', 
+    tank.fecha_creación ? new Date(tank.fecha_creación).toLocaleDateString() : 'N/A', currentY);
+  currentY = addStyledInfo('Última Inspección', 
+    tank.última_inspección ? new Date(tank.última_inspección).toLocaleDateString() : 'N/A', currentY);
+  
+  // POBLACIÓN - SECCIÓN DESTACADA
+  if (tank.población) {
+    currentY += 8;
+    currentY = createSection('POBLACIÓN', currentY);
+    
+    // Crear un recuadro destacado para la población
+    doc.setFillColor(240, 248, 255);
+    doc.setDrawColor(...secondaryColor);
+    doc.setLineWidth(1);
+    doc.rect(25, currentY - 5, 160, 20, 'FD');
+    
+    currentY = addStyledInfo('Cantidad de Peces', tank.población.total_peces || 'N/A', currentY);
+    currentY = addStyledInfo('Biomasa Total', 
+      tank.población.biomasa_kg ? `${tank.población.biomasa_kg} kg` : 'N/A', currentY);
+  }
+  
+  // ESPECIES
+  if (tank.especies && tank.especies.length > 0) {
+    currentY += 8;
+    currentY = createSection('ESPECIES', currentY);
+    currentY = addStyledInfo('Especies Presentes', tank.especies.join(', '), currentY);
+  }
+  
+  // CONDICIONES AMBIENTALES
+  if (tank.condiciones) {
+    currentY += 8;
+    currentY = createSection('CONDICIONES AMBIENTALES', currentY);
+    currentY = addStyledInfo('Temperatura', 
+      tank.condiciones.temperatura_c ? `${tank.condiciones.temperatura_c} °C` : 'N/A', currentY);
+    currentY = addStyledInfo('pH', tank.condiciones.pH || 'N/A', currentY);
+    currentY = addStyledInfo('Nivel de Agua', 
+      tank.condiciones.nivel_agua_cm ? `${tank.condiciones.nivel_agua_cm} cm` : 'N/A', currentY);
+  }
+  
+  // SISTEMAS Y TECNOLOGÍA
+  currentY += 8;
+  currentY = createSection('SISTEMAS Y TECNOLOGÍA', currentY);
+  currentY = addStyledInfo('Sensores Instalados', 
+    tank.sensores ? tank.sensores.join(', ') : 'N/A', currentY);
+  currentY = addStyledInfo('Sistema de Alimentación', 
+    tank.alimentación ? `${tank.alimentación.tipo || 'N/A'} (${tank.alimentación.frecuencia_diaria || 'N/A'} veces/día)` : 'N/A', 
+    currentY);
+  
+  // UBICACIÓN ORGANIZACIONAL
+  currentY += 8;
+  currentY = createSection('UBICACIÓN ORGANIZACIONAL', currentY);
+  currentY = addStyledInfo('Sucursal', tank.branch_id?.name || tank.branch_id || 'N/A', currentY);
+  currentY = addStyledInfo('Zona', tank.zone_id?.name || tank.zone_id || 'N/A', currentY);
+  
+  // FOOTER SIMPLE Y LIMPIO
+  const footerY = 280;
+  
+  // Texto del footer limpio y simple
+  doc.setFontSize(10);
+  doc.setTextColor(...darkGray);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BITNETS', 105, footerY, { align: 'center' });
+  
+  
+  
+  // Guardar el PDF
+  const fileName = `Reporte_${tank.nombre ? tank.nombre.replace(/[^a-zA-Z0-9]/g, '_') : 'Estanque'}_${new Date().toISOString().split('T')[0]}.pdf`;
+  doc.save(fileName);
 };
-
 onMounted(() => {
   fetchTanks();
 });
@@ -260,7 +340,7 @@ onMounted(() => {
   width: 100%;
   max-width: 800px;
   z-index: 1;
-  
+
   box-sizing: border-box;
 }
 </style>
