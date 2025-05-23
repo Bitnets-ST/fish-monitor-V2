@@ -229,7 +229,7 @@ import createZoneModal from "~/components/modal/createZoneModal.vue";
 import createCameraModal from "~/components/modal/createCameraModal.vue";
 import createSensorModal from "~/components/modal/createSensorModal.vue";
 import createTankModal from "~/components/modal/createTankModal.vue";
-import AllBranches from "~/components/card/AllBranches.vue";
+import AllBranches from "~/components/card/allBranches.vue";
 import allZone from "~/components/card/allZone.vue";
 import allTanks from "~/components/card/allTanks.vue";
 import allUsers from "~/components/card/allUsers.vue";
