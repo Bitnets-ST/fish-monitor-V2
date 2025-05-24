@@ -1,36 +1,181 @@
 <template>
-  <div class="estanques-page flex flex-center">
-    <!-- Agregar la imagen GIF de fondo -->
-    <img
-      src="/source.gif"
-      class="background-gif"
-      alt="Peces nadando de fondo"
-    />
-    []
-    <div class="w-full flex flex-col items-center">
-      <button class="back-btn" @click="goBack">
-        <span class="material-icons"> Volver a Zonas </span>
+  <div class="estanques-page">
+    <!-- Fondo animado mejorado -->
+    <div class="animated-background">
+      <div class="floating-bubbles">
+        <div v-for="i in 8" :key="i" class="bubble" :style="getBubbleStyle(i)"></div>
+      </div>
+      <div class="wave-animation">
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,60 C150,120 350,0 600,60 C850,120 1050,0 1200,60 L1200,120 L0,120 Z" fill="rgba(99, 102, 241, 0.05)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Header mejorado -->
+    <div class="page-header">
+      <button class="back-btn-new" @click="goBack">
+        <div class="btn-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </div>
+        <span>Volver a Zonas</span>
       </button>
-      <h2 class="text-lg font-bold mb-6">Estanques de la zona</h2>
-      <div class="flex flex-wrap gap-6 mb-6 justify-center">
-        <div v-for="tank in tanks" :key="tank._id" class="tank-card">
-          <div class="tank-title">{{ tank.nombre }}</div>
-          <div class="tank-info">
-            <b>Capacidad:</b> {{ tank.capacidad || "N/A" }}
+      
+      <div class="header-content">
+        
+        <h1 class="page-title">Estanques de la Zona</h1>
+        <p class="page-subtitle">Gestión y monitoreo de estanques acuícolas</p>
+      </div>
+    </div>
+
+    <!-- Grid de estanques mejorado -->
+    <div class="tanks-container">
+      <div class="tanks-grid">
+        <div 
+          v-for="(tank, index) in tanks" 
+          :key="tank._id" 
+          class="tank-card-new"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <!-- Header de la tarjeta -->
+          <div class="card-header">
+            <div class="tank-status" :class="getStatusClass(tank.estado)">
+              <div class="status-indicator"></div>
+              <span>{{ tank.estado || 'Sin estado' }}</span>
+            </div>
+            <div class="card-actions">
+              <button class="action-btn info-btn" @click="showTankDetails(tank)" title="Ver detalles">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="16" x2="12" y2="12"/>
+                  <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+              </button>
+              <button class="action-btn pdf-btn-new" @click="downloadPDF(tank)" title="Generar PDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <div class="tank-info"><b>Tipo:</b> {{ tank.tipo || "N/A" }}</div>
-          <div class="tank-info">
-            <b>Material:</b> {{ tank.material || "N/A" }}
+
+          <!-- Nombre del estanque -->
+          <div class="tank-name">
+            <div class="tank-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-12z"/>
+              </svg>
+            </div>
+            <h3>{{ tank.nombre || 'Estanque sin nombre' }}</h3>
           </div>
-          <div class="tank-info">
-            <b>Biomasa:</b> {{ tank.población?.biomasa_kg || "N/A" }} kg
+
+          <!-- Métricas principales -->
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <div class="metric-icon capacity">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Capacidad</span>
+                <span class="metric-value">{{ formatCapacity(tank.capacidad) }}</span>
+              </div>
+            </div>
+
+            <div class="metric-item">
+              <div class="metric-icon biomass">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6.5 12c.94-3.46 4.94-6 8.5-6s7.56 2.54 8.5 6c-.94 3.46-4.94 6-8.5 6s-7.56-2.54-8.5-6z"/>
+                  <circle cx="12" cy="14" r="3"/>
+                </svg>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Biomasa</span>
+                <span class="metric-value">{{ formatBiomass(tank.población?.biomasa_kg) }}</span>
+              </div>
+            </div>
+
+            <div class="metric-item">
+              <div class="metric-icon type">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="9" cy="9" r="2"/>
+                  <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                </svg>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Tipo</span>
+                <span class="metric-value">{{ tank.tipo || 'N/A' }}</span>
+              </div>
+            </div>
+
+            <div class="metric-item">
+              <div class="metric-icon material">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div class="metric-content">
+                <span class="metric-label">Material</span>
+                <span class="metric-value">{{ tank.material || 'N/A' }}</span>
+              </div>
+            </div>
           </div>
-          <div class="tank-info"><b>Estado:</b> {{ tank.estado || "N/A" }}</div>
-          <button class="pdf-btn" @click="downloadPDF(tank)">PDF</button>
+
+          <!-- Barra de progreso para biomasa -->
+          <div class="progress-section" v-if="tank.capacidad && tank.población?.biomasa_kg">
+            <div class="progress-label">
+              <span>Ocupación</span>
+              <span class="progress-percentage">{{ getOccupancyPercentage(tank) }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div 
+                class="progress-fill" 
+                :style="{ width: getOccupancyPercentage(tank) + '%' }"
+                :class="getProgressClass(getOccupancyPercentage(tank))"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Footer de la tarjeta -->
+          <div class="card-footer">
+            <div class="last-update">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+              <span>Última actualización: {{ formatDate(tank.última_inspección) }}</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div v-if="tanks.length === 0" class="text-gray-500">
-        No hay estanques registrados en esta zona.
+
+      <!-- Estado vacío mejorado -->
+      <div v-if="tanks.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+        </div>
+        <h3>No hay estanques registrados</h3>
+        <p>Esta zona aún no tiene estanques configurados. Contacta al administrador para agregar estanques.</p>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Cargando estanques...</p>
       </div>
     </div>
   </div>
@@ -42,13 +187,72 @@ import { useRouter, useRoute } from "vue-router";
 import jsPDF from "jspdf";
 import Chart from 'chart.js/auto';
 
-
 const router = useRouter();
 const route = useRoute();
 const tanks = ref([]);
+const isLoading = ref(true);
+
+// Funciones de utilidad para formateo
+const formatCapacity = (capacity) => {
+  if (!capacity) return 'N/A';
+  return capacity >= 1000 ? `${(capacity / 1000).toFixed(1)}K L` : `${capacity} L`;
+};
+
+const formatBiomass = (biomass) => {
+  if (!biomass) return 'N/A';
+  return `${biomass} kg`;
+};
+
+const formatDate = (date) => {
+  if (!date) return 'No disponible';
+  return new Date(date).toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
+const getStatusClass = (status) => {
+  const statusMap = {
+    'activo': 'status-active',
+    'inactivo': 'status-inactive',
+    'mantenimiento': 'status-maintenance',
+    'operativo': 'status-active'
+  };
+  return statusMap[status?.toLowerCase()] || 'status-unknown';
+};
+
+const getOccupancyPercentage = (tank) => {
+  if (!tank.capacidad || !tank.población?.biomasa_kg) return 0;
+  // Asumiendo 1kg por cada 10L como densidad ideal
+  const idealDensity = tank.capacidad / 10;
+  return Math.min(Math.round((tank.población.biomasa_kg / idealDensity) * 100), 100);
+};
+
+const getProgressClass = (percentage) => {
+  if (percentage <= 50) return 'progress-low';
+  if (percentage <= 80) return 'progress-medium';
+  return 'progress-high';
+};
+
+const getBubbleStyle = (index) => {
+  const size = Math.random() * 60 + 20;
+  const left = Math.random() * 100;
+  const animationDelay = Math.random() * 5;
+  const animationDuration = Math.random() * 3 + 2;
+  
+  return {
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${left}%`,
+    animationDelay: `${animationDelay}s`,
+    animationDuration: `${animationDuration}s`
+  };
+};
 
 const fetchTanks = async () => {
   try {
+    isLoading.value = true;
     const zoneId = route.params.id;
     const response = await $fetch(`/api/get/tank`);
     if (response.success && response.tanks) {
@@ -60,7 +264,11 @@ const fetchTanks = async () => {
       });
     }
   } catch (error) {
-    // Manejo de error opcional
+    console.error('Error fetching tanks:', error);
+  } finally {
+    setTimeout(() => {
+      isLoading.value = false;
+    }, 1000);
   }
 };
 
@@ -68,6 +276,11 @@ const goBack = () => {
   window.history.length > 1
     ? router.back()
     : router.push("/dashboard/sucursal");
+};
+
+const showTankDetails = (tank) => {
+  // Implementar modal o navegación a detalles
+  console.log('Showing details for tank:', tank);
 };
 
 const downloadPDF = async (tank) => {
@@ -429,114 +642,753 @@ const downloadPDF = async (tank) => {
   const fileName = `Reporte_${tank.nombre ? tank.nombre.replace(/[^a-zA-Z0-9]/g, '_') : 'Estanque'}_${new Date().toISOString().split('T')[0]}.pdf`;
   doc.save(fileName);
 };
+
 onMounted(() => {
   fetchTanks();
 });
 </script>
 
 <style scoped>
+/* Variables CSS para consistencia */
+:root {
+  --primary-color: #6366f1;
+  --secondary-color: #8b5cf6;
+  --accent-color: #f59e42;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --dark-bg: #0f172a;
+  --card-bg: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --border-color: #334155;
+}
+
 .estanques-page {
   min-height: 100vh;
-  width: 100vw;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   position: relative;
+  overflow-x: hidden;
+  padding: 2rem 1rem;
+}
+
+/* Fondo animado mejorado */
+.animated-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.floating-bubbles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: #f4f6fb;
 }
-.back-btn {
-  background: #6366f1;
-  color: #fff;
-  border: none;
-  border-radius: 1.5rem;
-  padding: 0.8rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  cursor: pointer;
-  display: flex;
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+
+.wave-animation {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  animation: wave 8s linear infinite;
+}
+
+@keyframes wave {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100px); }
+}
+
+/* Header mejorado */
+.page-header {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.back-btn-new {
+  display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
-  transition: background 0.18s, transform 0.18s;
-}
-.back-btn:hover {
-  background: #4338ca;
-  transform: translateY(-2px) scale(1.03);
-}
-.material-icons {
-  font-size: 1.4rem;
-}
-.tank-card {
-  background: #232946;
-  color: #fff;
-  border-radius: 1.5rem;
-  padding: 1.5rem 2.5rem;
-  min-width: 260px;
-  min-height: 160px;
-  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.1),
-    0 1.5px 6px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.7rem;
-  font-size: 1.1rem;
-  margin-bottom: 1rem;
-  max-width: none;
-  overflow-y: visible;
-  max-height: none;
-}
-.tank-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  color: #a5b4fc;
-  width: auto;
-  text-align: left;
-  padding-bottom: 0;
-  border-bottom: none;
-}
-.tank-info {
-  font-size: 1.05rem;
-  line-height: normal;
-}
-.pdf-btn {
-  background: #f59e42;
-  color: #fff;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
   border: none;
   border-radius: 1rem;
-  padding: 0.5rem 1.2rem;
+  padding: 0.875rem 1.5rem;
   font-size: 1rem;
   font-weight: 600;
-  margin-top: 1rem;
+  margin-bottom: 2rem;
   cursor: pointer;
-  transition: background 0.18s, transform 0.18s;
-}
-.pdf-btn:hover {
-  background: #d97706;
-  transform: translateY(-2px) scale(1.03);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
 }
 
-/* Estilos para la imagen GIF de fondo */
-.background-gif {
+.back-btn-new:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(99, 102, 241, 0.4);
+}
+
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Grid de estanques */
+.tanks-container {
+  position: relative;
+  z-index: 10;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.tanks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Tarjetas de estanque mejoradas */
+.tank-card-new {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.6s ease-out both;
+  position: relative;
+  overflow: hidden;
+}
+
+.tank-card-new::before {
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 50%;
-  height: 50%;
-  object-fit: contain;
-  z-index: 0;
-  object-position: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border-radius: 1.5rem 1.5rem 0 0;
 }
 
-.w-full.flex.flex-col.items-center {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  max-width: 800px;
-  z-index: 1;
+.tank-card-new:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-color);
+}
 
-  box-sizing: border-box;
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header de tarjeta */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.tank-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-active .status-indicator {
+  background: var(--success-color);
+}
+
+.status-inactive {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-inactive .status-indicator {
+  background: var(--danger-color);
+}
+
+.status-maintenance {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-maintenance .status-indicator {
+  background: var(--warning-color);
+}
+
+.status-unknown {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.status-unknown .status-indicator {
+  background: var(--text-secondary);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Acciones de tarjeta */
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.info-btn {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary-color);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.info-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.pdf-btn-new {
+  background: rgba(245, 158, 66, 0.1);
+  color: var(--accent-color);
+  border: 1px solid rgba(245, 158, 66, 0.3);
+}
+
+.pdf-btn-new:hover {
+  background: var(--accent-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Nombre del estanque */
+.tank-name {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tank-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.tank-name h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Grid de métricas */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.metric-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.metric-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary-color);
+}
+
+.metric-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.metric-icon.capacity {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.metric-icon.biomass {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.metric-icon.type {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.metric-icon.material {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.metric-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.metric-value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Barra de progreso */
+.progress-section {
+  margin-bottom: 1.5rem;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 1rem;
+  transition: width 1s ease-out;
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.progress-low {
+  background: linear-gradient(90deg, var(--success-color), #34d399);
+}
+
+.progress-medium {
+  background: linear-gradient(90deg, var(--warning-color), #fbbf24);
+}
+
+.progress-high {
+  background: linear-gradient(90deg, var(--danger-color), #f87171);
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Footer de tarjeta */
+.card-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.last-update {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Estado vacío */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.empty-icon {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 2rem;
+  color: var(--primary-color);
+  border: 2px dashed rgba(99, 102, 241, 0.3);
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(99, 102, 241, 0.2);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .tanks-grid {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .estanques-page {
+    padding: 1rem 0.5rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .tanks-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .tank-card-new {
+    padding: 1.5rem;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .card-actions {
+    align-self: flex-end;
+  }
+  
+  .tank-name {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    margin-bottom: 2rem;
+  }
+ 
+  
+  .page-title {
+    font-size: 1.75rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+  }
+  
+  .back-btn-new {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .tank-card-new {
+    padding: 1.25rem;
+  }
+  
+  .tank-name h3 {
+    font-size: 1.125rem;
+  }
+  
+  .metric-item {
+    padding: 0.75rem;
+  }
+  
+  .metric-icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Animaciones adicionales */
+.tank-card-new:nth-child(odd) {
+  animation-delay: 0.1s;
+}
+
+.tank-card-new:nth-child(even) {
+  animation-delay: 0.2s;
+}
+
+/* Efectos de hover mejorados */
+.metric-item:hover .metric-icon {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.tank-card-new:hover .tank-icon {
+  transform: rotate(5deg) scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* Tooltips para acciones */
+.action-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark-bg);
+  color: var(--text-primary);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  border: 1px solid var(--border-color);
+}
+
+.action-btn {
+  position: relative;
+}
+
+/* Efectos de glass morphism */
+.tank-card-new {
+  backdrop-filter: blur(10px);
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric-item {
+  backdrop-filter: blur(5px);
+}
+
+/* Animaciones de entrada escalonada */
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tank-card-new {
+  animation: fadeInScale 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Estados de hover para toda la tarjeta */
+.tank-card-new:hover .progress-fill {
+  animation: shimmer 1.5s infinite;
+}
+
+.tank-card-new:hover .status-indicator {
+  animation-duration: 1s;
+}
+
+/* Mejoras en la accesibilidad */
+.action-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.back-btn-new:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .tank-card-new {
+    background: rgba(30, 41, 59, 0.9);
+  }
+}
+
+/* Print styles */
+@media print {
+  .back-btn-new,
+  .card-actions,
+  .animated-background {
+    display: none;
+  }
+  
+  .estanques-page {
+    background: white;
+    color: black;
+  }
+  
+  .tank-card-new {
+    background: white;
+    border: 1px solid #ccc;
+    color: black;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
 }
 </style>
