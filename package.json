@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "netlify-build": "nuxt build"
   },
   "dependencies": {
     "@nuxt/eslint": "^1.4.0",
