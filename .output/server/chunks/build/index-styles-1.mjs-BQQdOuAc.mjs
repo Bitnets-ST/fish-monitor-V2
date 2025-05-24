@@ -1,0 +1,4 @@
+const index_vue_vue_type_style_index_0_scoped_a0ff46e2_lang = "";
+
+export { index_vue_vue_type_style_index_0_scoped_a0ff46e2_lang as i };
+//# sourceMappingURL=index-styles-1.mjs-BQQdOuAc.mjs.map
