@@ -1,26 +1,25 @@
-export default defineNuxtRouteMiddleware(async (to) => {
+export default defineNuxtRouteMiddleware(async (to, from) => {
+  // console.log('[Auth Middleware] Ejecutando para la ruta:', to.path);
   const authStore = useAuthStore();
-  const publicRoutes = ['/auth/login', '/auth/register'];
 
-  // Si la ruta es pública, permitir el acceso
-  if (publicRoutes.includes(to.path)) {
-    return;
-  }
+  // console.log('[Auth Middleware] Estado inicial de isAuthenticated:', authStore.isAuthenticated);
 
-  // Si no está autenticado, intentar obtener el usuario
   if (!authStore.isAuthenticated) {
+    // console.log('[Auth Middleware] No autenticado, intentando fetchCurrentUser...');
     try {
-      const isAuthenticated = await authStore.fetchCurrentUser();
-      if (!isAuthenticated) {
-        return navigateTo('/auth/login', { replace: true });
-      }
+      await authStore.fetchCurrentUser();
+      // console.log('[Auth Middleware] fetchCurrentUser completado. Nuevo estado isAuthenticated:', authStore.isAuthenticated);
     } catch (error) {
-      return navigateTo('/auth/login', { replace: true });
+      // console.error('[Auth Middleware] Error en fetchCurrentUser:', error.message);
+      // console.log('[Auth Middleware] Redirigiendo a /auth/login debido a error en fetchCurrentUser.');
+      return navigateTo("/auth/login");
     }
   }
 
-  // Si está intentando acceder a rutas de autenticación estando autenticado
-  if (authStore.isAuthenticated && publicRoutes.includes(to.path)) {
-    return navigateTo('/dashboard', { replace: true });
+  if (!authStore.isAuthenticated) {
+    // console.log('[Auth Middleware] Sigue sin estar autenticado después del intento. Redirigiendo a /auth/login.');
+    return navigateTo("/auth/login");
   }
+
+  // console.log('[Auth Middleware] Usuario autenticado. Permitiendo acceso a:', to.path);
 });

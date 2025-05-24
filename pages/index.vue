@@ -1,53 +1,38 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center">
-    <div class="text-center">
-      <div v-if="loading" class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-      <p v-else class="text-gray-700 dark:text-gray-200">Redirigiendo...</p>
-    </div>
+  <div>
+    <!-- Puedes mostrar un loader mientras se verifica la autenticación -->
+    <p class="text-gray-700 dark:text-gray-200">Cargando...</p>
+    <h1 class="text-2xl font-semibold">Inicio</h1>
+    <!-- Add more content here, it should inherit light text color -->
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useAuthStore } from "~/stores/auth";
 import { navigateTo } from "#app";
-
+import { definePageMeta } from "#imports";
 const authStore = useAuthStore();
-const loading = ref(true);
-
+definePageMeta({
+  layout: false,
+});
 onMounted(async () => {
-  try {
-    // Si no está autenticado, intentar obtener el usuario actual
-    if (!authStore.isAuthenticated) {
+  if (!authStore.isAuthenticated && !authStore.loading) {
+    try {
       await authStore.fetchCurrentUser();
+    } catch (error) {
+      // El error ya se maneja en el store
     }
+  }
 
-    // Después de verificar la autenticación, redirigir
-    if (authStore.isAuthenticated) {
-      await navigateTo("/dashboard", { replace: true });
-    } else {
-      await navigateTo("/auth/login", { replace: true });
-    }
-  } catch (error) {
-    console.error("Error during authentication check:", error);
-    await navigateTo("/auth/login", { replace: true });
-  } finally {
-    loading.value = false;
+  if (authStore.isAuthenticated) {
+    navigateTo("/dashboard");
+  } else {
+    navigateTo("/auth/login");
   }
 });
 </script>
 
 <style scoped>
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Estilos si son necesarios */
 </style>
