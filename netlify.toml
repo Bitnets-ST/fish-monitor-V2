@@ -10,9 +10,16 @@
 [dev]
   framework = "#custom"
 
+# Handle SPA routing
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/entry"
+  to = "/index.html"
+  status = 200
+
+# Handle API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
   force = true
 
