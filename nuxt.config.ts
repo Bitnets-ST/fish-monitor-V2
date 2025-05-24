@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  app: {
+    baseURL: '/', // Ajusta esto si tu app no está en la raíz del dominio
+  },
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   modules: [
