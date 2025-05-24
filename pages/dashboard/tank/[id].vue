@@ -40,6 +40,8 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import jsPDF from "jspdf";
+import Chart from 'chart.js/auto';
+
 
 const router = useRouter();
 const route = useRoute();
@@ -68,7 +70,7 @@ const goBack = () => {
     : router.push("/dashboard/sucursal");
 };
 
-const downloadPDF = (tank) => {
+const downloadPDF = async (tank) => {
   const doc = new jsPDF();
   
   // Configuración de colores
@@ -227,7 +229,201 @@ const downloadPDF = (tank) => {
   doc.setFont('helvetica', 'bold');
   doc.text('BITNETS', 105, footerY, { align: 'center' });
   
+  // ===============================================
+  // NUEVA PÁGINA CON GRÁFICOS 🚀
+  // ===============================================
+  doc.addPage();
   
+  // Header de la segunda página
+  doc.setFillColor(...primaryColor);
+  doc.rect(0, 0, 210, 40, 'F');
+  
+  doc.setFontSize(20);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text('ANÁLISIS GRÁFICO', 105, 25, { align: 'center' });
+  
+  // Crear canvas temporal para el gráfico
+  const canvas = document.createElement('canvas');
+  canvas.width = 600;
+  canvas.height = 400;
+  const ctx = canvas.getContext('2d');
+  
+  // Datos para el gráfico - Información del estanque
+  const chartData = {
+    labels: ['Capacidad (L)', 'Biomasa (kg)', 'Temperatura (°C)', 'pH', 'Nivel Agua (cm)'],
+    datasets: [{
+      label: 'Métricas del Estanque',
+      data: [
+        tank.capacidad || 0,
+        tank.población?.biomasa_kg || 0,
+        tank.condiciones?.temperatura_c || 0,
+        tank.condiciones?.pH || 0,
+        tank.condiciones?.nivel_agua_cm || 0
+      ],
+      backgroundColor: [
+        'rgba(99, 102, 241, 0.8)',
+        'rgba(245, 158, 66, 0.8)',
+        'rgba(34, 197, 94, 0.8)',
+        'rgba(239, 68, 68, 0.8)',
+        'rgba(168, 85, 247, 0.8)'
+      ],
+      borderColor: [
+        'rgba(99, 102, 241, 1)',
+        'rgba(245, 158, 66, 1)',
+        'rgba(34, 197, 94, 1)',
+        'rgba(239, 68, 68, 1)',
+        'rgba(168, 85, 247, 1)'
+      ],
+      borderWidth: 2
+    }]
+  };
+  
+  // Configuración del gráfico
+  const config = {
+    type: 'bar',
+    data: chartData,
+    options: {
+      responsive: false,
+      animation: false,
+      plugins: {
+        title: {
+          display: true,
+          text: `Métricas del Estanque: ${tank.nombre || 'Sin Nombre'}`,
+          font: {
+            size: 18,
+            weight: 'bold'
+          },
+          color: '#1f618d'
+        },
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            font: {
+              size: 12
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0,0,0,0.1)'
+          },
+          ticks: {
+            font: {
+              size: 11
+            }
+          }
+        },
+        x: {
+          ticks: {
+            font: {
+              size: 10
+            },
+            maxRotation: 45
+          }
+        }
+      }
+    }
+  };
+  
+  // Crear el gráfico
+  const chart = new Chart(ctx, config);
+  
+  // Esperar a que el gráfico se renderice y luego agregarlo al PDF
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      try {
+        // Convertir canvas a imagen y agregarla al PDF
+        const chartImage = canvas.toDataURL('image/png', 1.0);
+        doc.addImage(chartImage, 'PNG', 20, 60, 170, 113);
+        
+        // Agregar información adicional debajo del gráfico
+        let infoY = 185;
+        
+        // Sección de resumen
+        doc.setFontSize(14);
+        doc.setTextColor(...primaryColor);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RESUMEN EJECUTIVO', 20, infoY);
+        
+        infoY += 10;
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('helvetica', 'normal');
+        
+        // Análisis automático basado en los datos
+        const analysis = [];
+        
+        if (tank.capacidad && tank.población?.biomasa_kg) {
+          const density = (tank.población.biomasa_kg / tank.capacidad * 1000).toFixed(2);
+          analysis.push(`• Densidad de población: ${density} kg/m³`);
+        }
+        
+        if (tank.condiciones?.temperatura_c) {
+          const temp = tank.condiciones.temperatura_c;
+          if (temp >= 18 && temp <= 25) {
+            analysis.push(`• Temperatura óptima: ${temp}°C (Rango ideal)`);
+          } else {
+            analysis.push(`• Temperatura: ${temp}°C (Fuera del rango óptimo 18-25°C)`);
+          }
+        }
+        
+        if (tank.condiciones?.pH) {
+          const ph = tank.condiciones.pH;
+          if (ph >= 6.5 && ph <= 8.5) {
+            analysis.push(`• pH balanceado: ${ph} (Rango saludable)`);
+          } else {
+            analysis.push(`• pH: ${ph} (Requiere atención - Óptimo: 6.5-8.5)`);
+          }
+        }
+        
+        if (tank.estado) {
+          analysis.push(`• Estado general: ${tank.estado}`);
+        }
+        
+        // Agregar el análisis al PDF
+        analysis.forEach(item => {
+          if (infoY > 270) return; // Evitar overflow
+          doc.text(item, 25, infoY, { maxWidth: 160 });
+          infoY += 7;
+        });
+        
+        // Recomendaciones
+        if (infoY < 250) {
+          infoY += 5;
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...accentColor);
+          doc.text('RECOMENDACIONES:', 20, infoY);
+          
+          infoY += 8;
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          doc.text('• Monitorear parámetros de agua semanalmente', 25, infoY);
+          infoY += 6;
+          doc.text('• Mantener registro de alimentación diaria', 25, infoY);
+          infoY += 6;
+          doc.text('• Realizar inspecciones visuales periódicas', 25, infoY);
+        }
+        
+        // Limpiar el chart
+        chart.destroy();
+        canvas.remove();
+        
+        resolve();
+      } catch (error) {
+        console.error('Error generando gráfico:', error);
+        // Si falla el gráfico, agregar texto alternativo
+        doc.setFontSize(12);
+        doc.setTextColor(...darkGray);
+        doc.text('Gráfico no disponible - Datos insuficientes', 105, 120, { align: 'center' });
+        resolve();
+      }
+    }, 500); // Dar tiempo al gráfico para renderizarse
+  });
   
   // Guardar el PDF
   const fileName = `Reporte_${tank.nombre ? tank.nombre.replace(/[^a-zA-Z0-9]/g, '_') : 'Estanque'}_${new Date().toISOString().split('T')[0]}.pdf`;
