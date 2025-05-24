@@ -13,7 +13,7 @@
 # Handle SPA routing
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/dashboard.vue"
   status = 200
 
 # Handle API routes
