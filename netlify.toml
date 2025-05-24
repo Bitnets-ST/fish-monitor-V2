@@ -12,5 +12,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/dashboard.vue"
   status = 200
