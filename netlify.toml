@@ -1,16 +1,25 @@
 [build]
   command = "npm run build"
   publish = ".output/public"
-  functions = ".output/server/functions" # Ruta corregida para funciones
+  functions = ".output/server/functions"
 
 [functions]
-  directory = ".output/server/functions" # Asegurar esta ruta
-  node_bundler = "esbuild" # Añadir esto para Nuxt 3
+  directory = ".output/server/functions"
+  node_bundler = "esbuild"
 
 [dev]
   framework = "#custom"
 
 [[redirects]]
   from = "/*"
-  to = "/dashboard.vue"
+  to = "/.netlify/functions/entry"
   status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
