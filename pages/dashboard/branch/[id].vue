@@ -1,113 +1,77 @@
 <template>
-  <div class="ocean-background">
-    <div class="wave-container">
-      <div class="wave"></div>
-      <div class="wave wave2"></div>
-      <div class="wave wave3"></div>
-    </div>
-
-    <div class="sucursales-container">
-      <div class="page-header">
+  <div class="dashboard-container">
+    <div class="content-wrapper">
+      <!-- Header Section -->
+      <div class="header-section">
         <button class="back-btn" @click="goBack">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="24"
-            height="24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
             <path fill="none" d="M0 0h24v24H0z" />
-            <path
-              d="M7.828 11H20v2H7.828l5.364 5.364-1.414 1.414L4 12l7.778-7.778 1.414 1.414z"
-              fill="currentColor"
-            />
+            <path d="M7.828 11H20v2H7.828l5.364 5.364-1.414 1.414L4 12l7.778-7.778 1.414 1.414z" fill="currentColor" />
           </svg>
-          Volver a Sucursales
+          Volver a Zonas
         </button>
-
-        <div class="title-bubble">
-          <h2 class="page-title">Zonas de la sucursal</h2>
-        </div>
+        <h1 class="page-title">Gestión y monitoreo de estanques acuícolas</h1>
       </div>
 
-      <div class="flex flex-wrap gap-8 mb-6 justify-center">
+      <!-- Zones Grid -->
+      <div class="zones-grid">
         <div v-for="zone in zones" :key="zone._id" class="zone-card">
-          <div class="card-content">
+          <div class="zone-header">
             <div class="zone-icon">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="36"
-                height="36"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
                 <path fill="none" d="M0 0h24v24H0z" />
-                <path
-                  d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm8 6v2h8V9h-8zm0 4v2h8v-2h-8zm0 4v2h8v-2h-8zM7 9v2h2V9H7zm0 4v2h2v-2H7zm0 4v2h2v-2H7z"
-                  fill="rgba(255,255,255,0.9)"
-                />
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
               </svg>
             </div>
-            <span class="zone-name">{{ zone.name }}</span>
+            <div class="zone-title-section">
+              <h3 class="zone-name">{{ zone.name }}</h3>
+              <span class="zone-status">Activa</span>
+            </div>
 
-            <div
-              class="tank-list"
-              v-if="zone.estanques && zone.estanques.length"
-            >
-              <div class="tank-list-title">Estanques:</div>
-              <div class="tank-tags">
-                <span
-                  v-for="tank in zone.estanques"
-                  :key="tank._id"
-                  class="tank-tag"
-                >
-                  {{ tank.nombre }}
-                </span>
+          </div>
+
+
+
+          <!-- Tank List -->
+          <div class="tank-section">
+            <div class="section-title">Estanques</div>
+            <div v-if="zone.estanques && zone.estanques.length" class="tank-grid">
+              <div v-for="tank in zone.estanques" :key="tank._id" class="tank-item">
+                <div class="tank-indicator"></div>
+                <span class="tank-name">{{ tank.nombre }}</span>
               </div>
             </div>
-            <div v-else class="tank-list-empty">No hay estanques</div>
-
-            <button class="ver-btn" @click="goToEstanques(zone._id)">
-              <span>Ver Estanques</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-              >
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path
-                  d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
+            <div v-else class="no-tanks">
+              <span>Sin estanques configurados</span>
+            </div>
           </div>
 
-          <div class="bubbles">
-            <div class="bubble bubble-1"></div>
-            <div class="bubble bubble-2"></div>
-          </div>
+          <!-- Action Button -->
+          <button 
+            v-if="zone.estanques && zone.estanques.length" 
+            class="view-details-btn" 
+            @click="goToEstanques(zone._id)"
+          >
+            <span>Ver Estanques</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+              <path fill="none" d="M0 0h24v24H0z" />
+              <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" fill="currentColor" />
+            </svg>
+          </button>
         </div>
       </div>
 
+      <!-- Empty State -->
       <div v-if="zones.length === 0" class="empty-state">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="48"
-          height="48"
-        >
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path
-            d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1-5a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1H9v2h1v3h4v-3h1v-2h-2zM8.567 4.813A8.528 8.528 0 0 0 7.4 8H4.746a10.028 10.028 0 0 1 3.82-3.187zm6.866 0A10.028 10.028 0 0 1 19.254 8H16.6a8.528 8.528 0 0 0-1.167-3.187z"
-            fill="rgba(255,255,255,0.7)"
-          />
-        </svg>
-        <p>No hay zonas registradas</p>
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1-5a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1H9v2h1v3h4v-3h1v-2h-2z" fill="currentColor" />
+          </svg>
+        </div>
+        <h3>No hay zonas registradas</h3>
+        <p>Comience agregando zonas para organizar sus estanques</p>
       </div>
-
-      <!-- Decoración: peces -->
-      <div class="fish fish-1"></div>
-      <div class="fish fish-2"></div>
     </div>
   </div>
 </template>
@@ -143,7 +107,7 @@ const fetchZones = async () => {
       zones.value = zonesWithTanks;
     }
   } catch (error) {
-    // Manejo de error opcional
+    console.error('Error fetching zones:', error);
   }
 };
 
@@ -161,182 +125,322 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Estilos base del ejemplo anterior (océano, olas, peces, etc.) */
-.ocean-background {
+.dashboard-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #05445e 0%, #022c45 70%, #021926 100%);
-  position: relative;
-  overflow: hidden;
-  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  padding: 2rem;
 }
 
-.wave-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100px;
-  overflow: hidden;
-  pointer-events: none;
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.wave {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 200%;
-  height: 120px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2375E6DA" fill-opacity="0.4" d="M0,192L60,186.7C120,181,240,171,360,149.3C480,128,600,96,720,90.7C840,85,960,107,1080,112C1200,117,1320,107,1380,101.3L1440,96L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path></svg>');
-  background-repeat: repeat-x;
-  background-position: 0 bottom;
-  background-size: 50% 120px;
-  animation: wave 15s linear infinite;
-  opacity: 0.8;
+/* Header Section */
+.header-section {
+  margin-bottom: 3rem;
 }
 
-/* Resto de animaciones y estilos de waves... */
-
-/* Botón Volver */
 .back-btn {
-  background: linear-gradient(
-    135deg,
-    rgba(117, 230, 218, 0.3) 0%,
-    rgba(189, 224, 254, 0.2) 100%
-  );
-  backdrop-filter: blur(10px);
-  color: #effffd;
-  border: 2px solid rgba(189, 224, 254, 0.3);
-  border-radius: 2rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 2rem;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
 }
 
 .back-btn:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(117, 230, 218, 0.5) 0%,
-    rgba(189, 224, 254, 0.4) 100%
-  );
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: rgba(148, 163, 184, 0.15);
+  color: #e2e8f0;
+  transform: translateX(-2px);
 }
 
-/* Tarjetas de Zona */
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Zones Grid */
+.zones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
 .zone-card {
-  background: linear-gradient(
-    135deg,
-    rgba(189, 224, 254, 0.3) 0%,
-    rgba(117, 230, 218, 0.2) 100%
-  );
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  padding: 0.5rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  min-width: 280px;
-  max-width: 320px;
-  height: 320px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 280px;
 }
 
 .zone-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.card-content {
-  background: rgba(6, 90, 130, 0.8);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  height: 100%;
+/* Zone Header */
+.zone-header {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  position: relative;
-  z-index: 2;
-  border: 1px solid rgba(189, 224, 254, 0.3);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
 }
 
 .zone-icon {
-  background: rgba(189, 224, 254, 0.2);
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 0.75rem;
+  width: 3rem;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.zone-title-section {
+  flex: 1;
 }
 
 .zone-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #effffd;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.tank-list-title {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #75e6da;
-  margin-bottom: 0.7rem;
+  color: #f1f5f9;
+  margin: 0 0 0.25rem 0;
 }
 
-.tank-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  max-height: 100px;
-  overflow-y: auto;
+.zone-status {
+  font-size: 0.875rem;
+  color: #10b981;
+  font-weight: 500;
 }
 
-.tank-tag {
-  background: rgba(189, 224, 254, 0.2);
-  border-radius: 1rem;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.9rem;
-  color: #effffd;
-  border: 1px solid rgba(189, 224, 254, 0.3);
+.zone-actions {
+  display: none;
 }
 
-.empty-state {
-  text-align: center;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 2rem;
-}
-
-.ver-btn {
-  background: linear-gradient(135deg, #189ab4 0%, #05445e 100%);
-  color: #effffd;
-  border: none;
-  border-radius: 1.5rem;
-  padding: 0.7rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  margin-top: auto;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.action-btn {
+  background: rgba(51, 65, 85, 0.5);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  color: #94a3b8;
+  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(71, 85, 105, 0.7);
+  color: #e2e8f0;
+}
+
+/* Zone Statistics */
+.zone-stats {
+  display: none;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(51, 65, 85, 0.3);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.stat-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.stat-icon.capacity {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.stat-icon.productivity {
+  background: linear-gradient(135deg, #10b981, #047857);
+}
+
+.stat-icon.status {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.stat-value.status-active {
+  color: #10b981;
+}
+
+/* Tank Section */
+.tank-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.tank-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.tank-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(71, 85, 105, 0.3);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.tank-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #10b981;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.tank-name {
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  font-weight: 500;
+  flex: 1;
+}
+
+.no-tanks {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+/* View Details Button */
+.view-details-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  margin-top: auto;
 }
 
-.ver-btn:hover {
-  background: linear-gradient(135deg, #157a8f 0%, #04334d 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+.view-details-btn:hover {
+  background: linear-gradient(135deg, #5b21b6, #7c3aed);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
 }
 
-/* Mantener estilos de burbujas, peces y responsive del ejemplo anterior */
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #64748b;
+}
+
+.empty-icon {
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .zones-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .zone-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .tank-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+}
 </style>
