@@ -3,6 +3,19 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
 
+  // Add SSR configuration
+  ssr: true,
+  
+  // Add nitro configuration for Netlify
+  nitro: {
+    preset: 'netlify',
+    output: {
+      dir: '.output',
+      serverDir: '.output/server',
+      publicDir: '.output/public'
+    }
+  },
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
