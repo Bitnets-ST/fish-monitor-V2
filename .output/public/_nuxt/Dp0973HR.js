@@ -1,0 +1,1 @@
+import{Q as u,u as o,R as n,n as a}from"./CdJloxl_.js";const f=u(async(s,i)=>{let e,r;const t=o();if(!t.isAuthenticated)try{[e,r]=n(()=>t.fetchCurrentUser()),await e,r()}catch{return a("/auth/login")}if(!t.isAuthenticated)return a("/auth/login")});export{f as default};
