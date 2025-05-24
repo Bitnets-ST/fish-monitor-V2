@@ -2,35 +2,6 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
-
-  // Add SSR configuration
-  ssr: true,
-  
-  // Add nitro configuration for Netlify
-  nitro: {
-    preset: 'netlify',
-    output: {
-      dir: '.output',
-      serverDir: '.output/server',
-      publicDir: '.output/public'
-    },
-    routeRules: {
-      '/**': { isr: false }
-    }
-  },
-
-  // Add app configuration
-  app: {
-    head: {
-      title: 'Fish Monitor',
-      meta: [
-        { charset: 'utf-8' },
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' }
-      ]
-    },
-    baseURL: '/'
-  },
-
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
