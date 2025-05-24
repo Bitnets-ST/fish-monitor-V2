@@ -29,7 +29,7 @@ export const useAuthStore = defineStore("auth", {
         if (data.value && data.value.user) {
           this.user = data.value.user;
           this.isAuthenticated = true;
-          navigateTo("/dashboard"); // Redirigir al dashboard después del login
+          await navigateTo("/dashboard", { replace: true });
         } else {
           throw new Error("Respuesta inválida del servidor");
         }
@@ -37,9 +37,10 @@ export const useAuthStore = defineStore("auth", {
         this.error = err.message || "Error desconocido en el inicio de sesión";
         this.isAuthenticated = false;
         this.user = null;
-        // No lanzar el error aquí para que el componente de login pueda manejarlo
+        throw err;
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
 
     async register(userInfo) {
@@ -52,15 +53,13 @@ export const useAuthStore = defineStore("auth", {
         });
 
         if (error.value) {
-          // El error.value.data ya debería tener un campo 'message' del servidor
           throw error.value.data || new Error("Error en el registro");
         }
 
         if (data.value && data.value.user) {
           this.user = data.value.user;
           this.isAuthenticated = true;
-          // Si el registro también inicia sesión (como lo configuramos en el backend):
-          navigateTo("/dashboard");
+          await navigateTo("/dashboard", { replace: true });
         } else {
           throw new Error("Respuesta inválida del servidor tras el registro");
         }
@@ -68,8 +67,10 @@ export const useAuthStore = defineStore("auth", {
         this.error = err.message || "Error desconocido durante el registro";
         this.isAuthenticated = false;
         this.user = null;
+        throw err;
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
 
     async logout() {
@@ -79,66 +80,57 @@ export const useAuthStore = defineStore("auth", {
         await useFetch("/api/auth/logout", { method: "POST" });
         this.user = null;
         this.isAuthenticated = false;
-        navigateTo("/auth/login"); // Redirigir al login después del logout
+        await navigateTo("/auth/login", { replace: true });
       } catch (err) {
         this.error = err.message || "Error al cerrar sesión";
-        // Incluso si hay error, limpiar el estado local
         this.user = null;
         this.isAuthenticated = false;
+        await navigateTo("/auth/login", { replace: true });
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
 
     async fetchCurrentUser() {
-      // console.log('[AuthStore] fetchCurrentUser: Iniciando...');
-      if (this.isAuthenticated) {
-        // console.log('[AuthStore] fetchCurrentUser: Ya autenticado, saltando.');
+      if (this.isAuthenticated && this.user) {
         return;
       }
+
       this.loading = true;
       this.error = null;
       try {
-        // console.log('[AuthStore] fetchCurrentUser: Realizando useFetch a /api/auth/me');
         const { data, error } = await useFetch("/api/auth/me", {
-          headers: useRequestHeaders(["cookie"]), // Asegura que las cookies se envíen
+          headers: useRequestHeaders(["cookie"]),
         });
 
         if (error.value) {
-          // console.error('[AuthStore] fetchCurrentUser: Error de useFetch:', error.value);
           if (error.value.statusCode === 401) {
-            // console.log('[AuthStore] fetchCurrentUser: Error 401, usuario no autenticado.');
             this.user = null;
             this.isAuthenticated = false;
-          } else {
-            throw (
-              error.value.data ||
-              new Error("Error al obtener datos del usuario desde store")
-            );
+            return false;
           }
-        } else if (data.value && data.value.user) {
-          // console.log('[AuthStore] fetchCurrentUser: Usuario obtenido:', data.value.user);
+          throw error.value.data || new Error("Error al obtener datos del usuario");
+        }
+
+        if (data.value && data.value.user) {
           this.user = data.value.user;
           this.isAuthenticated = true;
-        } else {
-          // console.log('[AuthStore] fetchCurrentUser: No hay datos de usuario o estructura inesperada en la respuesta.');
-          this.user = null;
-          this.isAuthenticated = false;
+          return true;
         }
-      } catch (err) {
-        // console.error('[AuthStore] fetchCurrentUser: Excepción capturada:', err.message);
-        this.error =
-          err.message ||
-          "Error desconocido al obtener datos del usuario desde store";
+
         this.user = null;
         this.isAuthenticated = false;
-        throw err;
+        return false;
+      } catch (err) {
+        this.error = err.message || "Error desconocido al obtener datos del usuario";
+        this.user = null;
+        this.isAuthenticated = false;
+        return false;
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
-      // console.log('[AuthStore] fetchCurrentUser: Finalizado. isAuthenticated:', this.isAuthenticated);
     },
 
-    // Opcional: acción para intentar refrescar el token si el de acceso expira
-    // Esto requeriría un interceptor en useFetch o $axios si se usara
     async refreshToken() {
       this.loading = true;
       try {
@@ -146,22 +138,27 @@ export const useAuthStore = defineStore("auth", {
           method: "POST",
           headers: useRequestHeaders(["cookie"]),
         });
+
         if (error.value) {
-          this.logout(); // Si el refresh falla, desloguear
-          throw error.value.data || new Error("No se pudo refrescar el token");
+          await this.logout();
+          return false;
         }
+
         if (data.value && data.value.user) {
           this.user = data.value.user;
           this.isAuthenticated = true;
           return true;
         }
+
+        await this.logout();
         return false;
-        // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        this.logout();
+        await this.logout();
         return false;
+      } finally {
+        this.loading = false;
       }
-    },
+    }
   },
   // Configuración para pinia-plugin-persistedstate (opcional, si quieres persistir en localStorage/sessionStorage)
   // Como usamos cookies HTTP-only para los tokens, la persistencia del store es más para el estado de UI
