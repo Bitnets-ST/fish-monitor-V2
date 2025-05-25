@@ -13,9 +13,6 @@ export default defineNuxtConfig({
     "@nuxtjs/tailwindcss",
     "@pinia/nuxt",
   ],
-  nitro: {
-    preset: "netlify",
-  },
 
   fonts: {
     families: [
