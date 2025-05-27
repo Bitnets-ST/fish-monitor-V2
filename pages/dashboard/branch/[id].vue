@@ -10,7 +10,7 @@
           </svg>
           Volver a Zonas
         </button>
-        <h1 class="page-title">Gestión y monitoreo de estanques acuícolas</h1>
+        <h1 class="page-title">Gestión y monitoreo de salas</h1>
       </div>
 
       <!-- Zones Grid -->
