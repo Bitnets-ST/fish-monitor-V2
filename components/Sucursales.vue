@@ -10,7 +10,9 @@
     <div class="sucursales-page-container">
       <div class="page-header">
         <div class="title-bubble">
-          <h2 class="page-title">Sucursales</h2>
+
+          <h2 class="page-title">Psiculturas</h2>
+
         </div>
       </div>
 

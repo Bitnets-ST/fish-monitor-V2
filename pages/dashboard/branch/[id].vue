@@ -1,81 +1,195 @@
 <template>
-  <div class="dashboard-container">
-    <div class="content-wrapper">
-      <!-- Header Section -->
-      <div class="header-section">
-        <button class="back-btn" @click="goBack">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path d="M7.828 11H20v2H7.828l5.364 5.364-1.414 1.414L4 12l7.778-7.778 1.414 1.414z" fill="currentColor" />
-          </svg>
-          Volver a Zonas
-        </button>
-        <h1 class="page-title">Gestión y monitoreo de salas</h1>
-      </div>
 
-      <!-- Zones Grid -->
-      <div class="zones-grid">
-        <div v-for="zone in zones" :key="zone._id" class="zone-card">
-          <div class="zone-header">
-            <div class="zone-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-                <path fill="none" d="M0 0h24v24H0z" />
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor" />
-              </svg>
-            </div>
-            <div class="zone-title-section">
-              <h3 class="zone-name">{{ zone.name }}</h3>
-              <span class="zone-status">Activa</span>
-            </div>
+  <div class="map-container">
+    <div class="image-wrapper">
+      <img src= "/public/mapa.png" alt="Piscicultura Mowi" ref="mapImage" @load="initMap" @click="logClickPosition">
 
+      <!-- Capa de estanques interactivos -->
+      <div class="pools-layer">
+        <div v-for="(pool, index) in pools" :key="pool.id" class="pool-highlight" :style="getPoolStyle(pool, index)"
+          @mouseenter="setActivePool(index)" @mouseleave="activePool = null">
+          <div v-if="activePool === index" class="pool-tooltip"
+               :style="pool.shape === 'circle' ? { backgroundColor: '#FFA500', borderTopColor: '#FFA500' } : {}">
+            <h4>{{ pool.title }}</h4>
+            <p>{{ pool.tooltip }}</p>
+            <p>Biomasa: {{ pool.biomass }}</p>
+            <p>pH: {{ pool.ph }}</p>
+            <p>Temperatura: {{ pool.temperature }}</p>
           </div>
-
-
-
-          <!-- Tank List -->
-          <div class="tank-section">
-            <div class="section-title">Estanques</div>
-            <div v-if="zone.estanques && zone.estanques.length" class="tank-grid">
-              <div v-for="tank in zone.estanques" :key="tank._id" class="tank-item">
-                <div class="tank-indicator"></div>
-                <span class="tank-name">{{ tank.nombre }}</span>
-              </div>
-            </div>
-            <div v-else class="no-tanks">
-              <span>Sin estanques configurados</span>
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <button 
-            v-if="zone.estanques && zone.estanques.length" 
-            class="view-details-btn" 
-            @click="goToEstanques(zone._id)"
-          >
-            <span>Ver Estanques</span>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-              <path fill="none" d="M0 0h24v24H0z" />
-              <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" fill="currentColor" />
-            </svg>
-          </button>
         </div>
-      </div>
 
-      <!-- Empty State -->
-      <div v-if="zones.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48">
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm0 15a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm1-5a1 1 0 0 0-1-1h-1a1 1 0 0 0-1 1H9v2h1v3h4v-3h1v-2h-2z" fill="currentColor" />
-          </svg>
-        </div>
-        <h3>No hay zonas registradas</h3>
-        <p>Comience agregando zonas para organizar sus estanques</p>
       </div>
     </div>
   </div>
 </template>
 
+
+<script>
+export default {
+  data() {
+    return {
+      activePool: null,
+      imgSize: { width: 0, height: 0 },
+      pools: [
+        { id: 1, shape: "oval", coords: { cx: 342, cy: 622, r: 20 }, title: "Estanque 301", tooltip: "Capacidad: 10,000 peces", biomass: "500 kg", ph: "7.2", temperature: "15°C" },
+        { id: 2, shape: "oval", coords: { cx: 340, cy: 500, r: 20 }, title: "Estanque 302", tooltip: "Capacidad: 9,500 peces", biomass: "480 kg", ph: "7.1", temperature: "15.5°C" },
+        { id: 3, shape: "oval", coords: { cx: 382, cy: 619, r: 20 }, title: "Estanque 303", tooltip: "Capacidad: 11,000 peces", biomass: "550 kg", ph: "7.3", temperature: "14.8°C" },
+        { id: 4, shape: "oval", coords: { cx: 379, cy: 498, r: 20 }, title: "Estanque 304", tooltip: "Capacidad: 8,500 peces", biomass: "400 kg", ph: "7.0", temperature: "15.2°C" },
+        { id: 5, shape: "oval", coords: { cx: 421, cy: 617, r: 20 }, title: "Estanque 305", tooltip: "Capacidad: 12,000 peces", biomass: "600 kg", ph: "7.4", temperature: "16°C" },
+        { id: 6, shape: "oval", coords: { cx: 424, cy: 495, r: 20 }, title: "Estanque 306", tooltip: "Capacidad: 10,500 peces", biomass: "520 kg", ph: "7.2", temperature: "15.8°C" },
+        { id: 7, shape: "oval", coords: { cx: 464, cy: 614, r: 20 }, title: "Estanque 307", tooltip: "Capacidad: 9,000 peces", biomass: "450 kg", ph: "7.1", temperature: "15.1°C" },
+        { id: 8, shape: "oval", coords: { cx: 466, cy: 489, r: 20 }, title: "Estanque 308", tooltip: "Capacidad: 11,500 peces", biomass: "580 kg", ph: "7.3", temperature: "15.6°C" },
+        { id: 601, shape: "circle", coords: { cx: 936, cy: 382, r: 25 }, title: "Estanque 601", tooltip: "Capacidad: Desconocida", biomass: "300 kg", ph: "7.5", temperature: "17°C" },
+        { id: 602, shape: "circle", coords: { cx: 1000, cy: 348, r: 25 }, title: "Estanque 602", tooltip: "Capacidad: Desconocida", biomass: "320 kg", ph: "7.4", temperature: "16.8°C" },
+        { id: 603, shape: "circle", coords: { cx: 944, cy: 473, r: 25 }, title: "Estanque 603", tooltip: "Capacidad: Desconocida", biomass: "280 kg", ph: "7.6", temperature: "17.1°C" },
+        { id: 604, shape: "circle", coords: { cx: 1006, cy: 438, r: 25 }, title: "Estanque 604", tooltip: "Capacidad: Desconocida", biomass: "350 kg", ph: "7.3", temperature: "16.5°C" },
+        { id: 605, shape: "circle", coords: { cx: 939, cy: 549, r: 25 }, title: "Estanque 605", tooltip: "Capacidad: Desconocida", biomass: "310 kg", ph: "7.5", temperature: "17.2°C" },
+        { id: 606, shape: "circle", coords: { cx: 1005, cy: 532, r: 25 }, title: "Estanque 606", tooltip: "Capacidad: Desconocida", biomass: "330 kg", ph: "7.4", temperature: "16.9°C" }
+      ]
+    }
+  },
+  methods: {
+    initMap() {
+      this.updateImageSize();
+      window.addEventListener('resize', this.updateImageSize);
+    },
+    updateImageSize() {
+      if (this.$refs.mapImage) {
+        this.imgSize = {
+          width: this.$refs.mapImage.offsetWidth,
+          height: this.$refs.mapImage.offsetHeight
+        };
+      }
+    },
+    logClickPosition(event) {
+      const rect = this.$refs.mapImage.getBoundingClientRect();
+      const x = Math.round(event.clientX - rect.left);
+      const y = Math.round(event.clientY - rect.top);
+      console.log(`Coordenadas: ${x}, ${y}`);
+    },
+    setActivePool(index) {
+      this.activePool = index;
+    },
+    getPoolStyle(pool, index) {
+      if (pool.shape === "circle") {
+        // Styles for circle shape (white pools)
+        const highlightColor = this.activePool === index ? 'rgba(255, 165, 0, 0.4)' : 'transparent'; // Orange color
+        const borderColor = this.activePool === index ? '2px solid rgba(255, 165, 0, 0.8)' : 'none'; // Orange border
+
+        return {
+          left: `${pool.coords.cx - pool.coords.r}px`,
+          top: `${pool.coords.cy - pool.coords.r}px`,
+          width: `${pool.coords.r * 2}px`,
+          height: `${pool.coords.r * 2}px`,
+          borderRadius: '50%',
+          backgroundColor: highlightColor,
+          border: borderColor,
+          pointerEvents: 'auto'
+        };
+      } else if (pool.shape === "oval") {
+        // Styles for oval shape (black pools)
+        const highlightColor = this.activePool === index ? 'rgba(0, 255, 0, 0.4)' : 'transparent'; // Green color for black pools
+        const borderColor = this.activePool === index ? '2px solid rgba(0, 255, 0, 0.8)' : 'none'; // Green border for black pools
+        const verticalScale = 1.3; // Adjust this value to make the oval taller or shorter
+
+        return {
+          left: `${pool.coords.cx - pool.coords.r}px`,
+          top: `${pool.coords.cy - pool.coords.r * verticalScale}px`, // Adjust top based on scale
+          width: `${pool.coords.r * 2}px`,
+          height: `${pool.coords.r * 2 * verticalScale}px`, // Adjust height based on scale
+          borderRadius: '50%', // Still use 50% for oval base shape
+          backgroundColor: highlightColor,
+          border: borderColor,
+          pointerEvents: 'auto'
+        };
+      }
+      return {}; // Return empty style for unknown shapes
+    }
+  },
+  beforeUnmount() {
+    window.removeEventListener('resize', this.updateImageSize);
+  }
+}
+</script>
+
+<style scoped>
+.map-container {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.image-wrapper img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.pools-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pool-highlight {
+  position: absolute;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pool-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  min-width: 180px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  z-index: 100;
+}
+
+.pool-tooltip h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.pool-tooltip p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.pool-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px;
+  border-style: solid;
+  border-color: #4CAF50 transparent transparent transparent;
+}
+
+.pool-highlight {
+  position: absolute;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pools-layer {
+  pointer-events: none;
+=======
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -442,5 +556,6 @@ onMounted(() => {
   .page-title {
     font-size: 1.5rem;
   }
+
 }
 </style>
