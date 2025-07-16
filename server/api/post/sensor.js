@@ -1,13 +1,7 @@
 import Sensor from '~/server/models/sensor';
 
 export default defineEventHandler(async (event) => {
-  // Protección de ruta API (ejemplo básico)
-  // En una app real, tendrías un middleware que adjunta el usuario al evento
-  // o un sistema de permisos más robusto.
-  // const user = event.context.user; 
-  // if (!user || user.role !== 'administrador') { 
-  //   throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
-  // }
+  // Authentication checks removed
 
   try {
     const { name, sensor_IP, zone_id, sensor_type } = await readBody(event);

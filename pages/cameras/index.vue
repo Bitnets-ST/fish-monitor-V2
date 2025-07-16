@@ -31,7 +31,7 @@ import { ref, onMounted } from 'vue';
 import { definePageMeta } from "#imports";
 
 definePageMeta({
-  middleware: ["auth"],
+  // Removed authentication middleware
 });
 
 const cameras = ref([]);

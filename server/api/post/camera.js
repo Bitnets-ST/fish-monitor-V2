@@ -1,13 +1,7 @@
 import Camera from '~/server/models/camera';
 
 export default defineEventHandler(async (event) => {
-  // Protección de ruta API (ejemplo básico)
-  // En una app real, tendrías un middleware que adjunta el usuario al evento
-  // o un sistema de permisos más robusto.
-  // const user = event.context.user; 
-  // if (!user || user.role !== 'administrador') { 
-  //   throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
-  // }
+  // Authentication checks removed
 
   try {
     const { name, camera_IP, zone_id, camera_type } = await readBody(event);

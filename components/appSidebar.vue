@@ -19,7 +19,7 @@
 
       <nav class="mt-4 flex-grow">
         <ul>
-          <li v-for="item in visibleMenuItems" :key="item.path" class="mb-1">
+          <li v-for="item in menuItems" :key="item.path" class="mb-1">
             <NuxtLink
               :to="item.path"
               class="flex items-center py-2 px-3 mx-2 rounded hover:bg-gray-700"
@@ -39,9 +39,6 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-import { useAuthStore } from '~/stores/auth'; // Asegúrate que la ruta sea correcta
-
 export default {
   name: "AppSidebar",
   props: {
@@ -51,9 +48,7 @@ export default {
     },
   },
   setup() {
-    const authStore = useAuthStore();
-
-    const baseMenuItems = [
+    const menuItems = [
       {
         path: "/dashboard",
         title: "Dashboard",
@@ -68,23 +63,16 @@ export default {
         path: "/cameras",
         title: "Camaras",
         icon: "material-symbols:security",
+      },
+      {
+        path: "/settings/control-panel",
+        title: "Panel de Control",
+        icon: "material-symbols:admin-panel-settings-outline-rounded",
       }
     ];
 
-    const visibleMenuItems = computed(() => {
-      const items = [...baseMenuItems];
-      if (authStore.isAdmin) {
-        items.push({
-          path: "/settings/control-panel", // Ruta a tu panel de control
-          title: "Panel de Control",
-          icon: "material-symbols:admin-panel-settings-outline-rounded", // Ejemplo de ícono
-        });
-      }
-      return items;
-    });
-
     return {
-      visibleMenuItems,
+      menuItems,
     };
   },
 };

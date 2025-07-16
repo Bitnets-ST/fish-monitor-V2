@@ -1,8 +1,7 @@
 import Branch from "~/server/models/branch";
 
 export default defineEventHandler(async () => {
-  // Optional: Add any access control or error handling if needed
-  // For example, check user roles if this information should be restricted.
+  // Authentication checks removed
 
   try {
     const branches = await Branch.find({})

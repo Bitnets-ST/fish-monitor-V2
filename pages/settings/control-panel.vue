@@ -235,7 +235,7 @@ import allTanks from "~/components/card/allTanks.vue";
 import allUsers from "~/components/card/allUsers.vue";
 
 definePageMeta({
-  middleware: ["auth", "admin"],
+  // Removed authentication middleware
 });
 
 // Filtro activo

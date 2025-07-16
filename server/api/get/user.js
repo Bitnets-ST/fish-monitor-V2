@@ -1,14 +1,11 @@
-import User from '~/server/models/user'; // Adjust if your User model is named differently or located elsewhere
+// User model import removed since authentication system was removed
 
 export default defineEventHandler(async () => {
   try {
-    // Fetching users, selecting name and _id. Adjust 'name' if your User model uses a different field for display name (e.g., username, fullName).
-    const users = await User.find({})
-      .select('name email user_description avatar isActive lastLogin role createdAt updatedAt _id')
-      .sort({ name: 1 }); 
+    // Placeholder response since authentication system was removed
     return {
       success: true,
-      users: users
+      users: []
     };
   } catch (error) {
     console.error('Error fetching users:', error);

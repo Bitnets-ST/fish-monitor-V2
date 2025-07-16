@@ -16,19 +16,7 @@
       </div>
 
       <div class="flex items-center space-x-4">
-        <div v-if="authStore.isAuthenticated && authStore.user" class="text-white">
-          <span class="text-sm">Hola, {{ authStore.user.name }}</span>
-        </div>
-        <button 
-          v-if="authStore.isAuthenticated"
-          
-          class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-md shadow-sm font-medium transition duration-150 ease-in-out"
-          @click="handleLogout"
-        >
-          Salir
-        </button>
-        <!-- Placeholder si no está autenticado o para balancear el espacio -->
-        <div v-else class="w-8"/> 
+        <!-- Removed authentication-related content -->
       </div>
     </div>
   </header>
@@ -36,34 +24,9 @@
 
 <script>
 import { defineComponent } from 'vue';
-import { useAuthStore } from '~/stores/auth';
 
 export default defineComponent({
   name: "AppHeader",
-  emits: ["toggle-sidebar"],
-  setup() {
-    const authStore = useAuthStore();
-
-    const handleLogout = async () => {
-      await authStore.logout();
-      // La redirección se maneja en la acción de logout del store
-    };
-
-    return {
-      authStore,
-      handleLogout
-    };
-  }
-  // Si prefieres Options API y no usar setup():
-  // computed: {
-  //   authStore() {
-  //     return useAuthStore();
-  //   }
-  // },
-  // methods: {
-  //   async handleLogout() {
-  //     await this.authStore.logout();
-  //   }
-  // }
+  emits: ["toggle-sidebar"]
 });
 </script>

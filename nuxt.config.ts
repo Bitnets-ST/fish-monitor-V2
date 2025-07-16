@@ -42,8 +42,6 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Variables privadas disponibles solo en el servidor
     MONGODB_URI: process.env.MONGODB_URI,
-    JWT_SECRET: process.env.JWT_SECRET,
-    JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
     public: {
       apiBase: process.env.API_BASE || "http://localhost:3000",
     },

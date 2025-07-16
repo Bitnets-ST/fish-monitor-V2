@@ -1,13 +1,7 @@
 import Branch from '~/server/models/branch';
 
 export default defineEventHandler(async (event) => {
-  // Protección de ruta API (ejemplo básico)
-  // En una app real, tendrías un middleware que adjunta el usuario al evento
-  // o un sistema de permisos más robusto.
-  // const user = event.context.user; 
-  // if (!user || user.role !== 'administrador') { 
-  //   throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
-  // }
+  // Authentication checks removed
 
   try {
     const { name, location, description } = await readBody(event);
