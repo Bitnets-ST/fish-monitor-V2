@@ -39,6 +39,3 @@ definePageMeta({
   layout: false, // No usar ningún layout para la página de error
 });
 </script>
-
-<style scoped>
-</style>
