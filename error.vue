@@ -4,7 +4,7 @@
       <div class="text-9xl font-bold text-blue-500 mb-4">404</div>
       <h1 class="text-4xl font-bold mb-4">¡Ups! Página no encontrada</h1>
       <p class="text-xl text-gray-300 mb-8">
-        La página que estás buscando no existe o ha sido movida.
+        La página que estás buscando no existe .
       </p>
       <div class="flex justify-center gap-4">
         <NuxtLink 
