@@ -41,5 +41,4 @@ definePageMeta({
 </script>
 
 <style scoped>
-/* Estilos específicos para la página de error */
 </style>
