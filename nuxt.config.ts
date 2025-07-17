@@ -1,10 +1,16 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   app: {
-    baseURL: '/', // Ajusta esto si tu app no está en la raíz del dominio
+    baseURL: '/',
   },
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
+  
+  // Optimize for production
+  nitro: {
+    preset: 'netlify'
+  },
+  
   modules: [
     "@nuxt/eslint",
     "@nuxt/fonts",
@@ -34,9 +40,7 @@ export default defineNuxtConfig({
   },
 
   icon: {
-    //defaultCollection: 'material-symbols', // Si quieres que sea el prefijo por defecto
-    // size: '24px', // Tamaño por defecto para los iconos
-    class: "nuxt-icon", // Clase por defecto para los iconos
+    class: "nuxt-icon",
   },
 
   runtimeConfig: {
